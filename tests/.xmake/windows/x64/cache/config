@@ -1,9 +1,0 @@
-{
-    options = {
-        toolchain = "auto"
-    },
-    recheck = false,
-    mtimes = {
-        ["xmake.lua"] = 1714586172
-    }
-}

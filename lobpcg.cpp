@@ -384,11 +384,15 @@ for(int iter = 0; iter < max_iter; ++iter){
     // -- compute the coefficients of p
     /* coeff consists of c_x, c_w, c_p */
     Eigen::MatrixXd coeff = A_reduced.topLeftCorner(n_working_space, n_max_subspace);
-    auto c_p = coeff.block(n_max_subspace-n_active, n_max_subspace-n_active,n_active,n_active);
-    c_p -= Eigen::MatrixXd::Identity(n_active, n_active);
+    // in c_p: c_x - I where x is active, i.e. n_max_subspace-n_active to n_max_subspace-1
+    // auto c_p = coeff.block(n_max_subspace-n_active, n_max_subspace-n_active,n_active,n_active);
+    // c_p -= Eigen::MatrixXd::Identity(n_active, n_active);
+    
+    Eigen::MatrixXd coeff_p = coeff.middleCols(n_max_subspace-n_active,n_active);
+    auto c_active = coeff_p.middleRows(n_max_subspace-n_active, n_active);
+    c_active -= Eigen::MatrixXd::Identity(n_active, n_active);
     // ortho coeff p against coeff x
     // size(n_working_space, n_active)
-    Eigen::MatrixXd coeff_p = coeff.middleCols(n_max_subspace-n_active,n_active);
     ortho_against_y(n_working_space, n_max_subspace, n_active, coeff_p, coeff);
     // -- end of computing the coefficients of p
     /* p(n, n_active) = v(n, n_working_space) * coeff_p(n_working_space, n_active)
