@@ -2,6 +2,7 @@
 #include "lobpcg.h"
 #include "ortho.h"
 #include <Eigen/Dense>
+#include <random> // make a random init guess
 
 // intermediate tool functions
 // check_init_guess
@@ -61,12 +62,21 @@ std::chrono::time_point<std::chrono::high_resolution_clock> get_current_time() {
 
 
 // dense eigen solver
-/* overwrite A and eig
- * solves eigenvalue and eigenvectors of a selfadjoint(i.e. inverse equal to its adjoint) matrix A.
- * solve A_nn(n, n) topleft corner of size n input
-*/
-
-
+/** 
+ * @brief dense eigen solver, wrapper for Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd>
+ * 
+ * takes a self-adjoint matrix `A` and computes its eigenvalues and eigenvectors
+ * overwrite A and eig
+ * 1. check that input A is of size(n, n) and eig is of at least size n.
+ * 2. solves eigenvalue and eigenvectors of matrix `A`.
+ *
+ * @param A_to_be_eigenvecs The self-adjoint matrix for which eigenvalues and eigenvectors are to be computed.
+ * @param eig The vector to store the computed eigenvalues at eig.head(n)
+ * @param n The size of the matrix and the number of eigenvalues/eigenvectors to compute.
+ * @return An integer indicating the success or failure of the eigenvalue computation. Returns `LOBPCG_CONSTANTS::eig_success` on success and `LOBPCG_CONSTANTS::eig_fail` on failure.
+ * 
+ * @note self-adjoint: i.e. Hermitian, for real matrices means symmetric
+ */
 int selfadjoint_eigensolver(Eigen::MatrixXd &A_to_be_eigenvecs, Eigen::VectorXd &eig, int n)
 {
 #ifdef DEBUG_LOBPCG
@@ -97,14 +107,12 @@ int selfadjoint_eigensolver(Eigen::MatrixXd &A_to_be_eigenvecs, Eigen::VectorXd 
         std::cout << "The eigenvalues are:\n" << eig << std::endl;
         std::cout << "The eigenvectors are:\n" << A_to_be_eigenvecs << std::endl;
 #endif
-    }
-    else
-    {
+    } else {
         std::cerr << "Eigen decomposition failed." << std::endl;
         return LOBPCG_CONSTANTS::eig_fail;
     }
-    return LOBPCG_CONSTANTS::eig_success;
 #ifdef DEBUG_LOBPCG
     std::cout << "--- end eigensolver ---" << std::endl;
 #endif
+    return LOBPCG_CONSTANTS::eig_success;
 }

@@ -1,11 +1,12 @@
 #include <Eigen/Dense>
 #include <iostream>
-#include "lobpcg.h"
+#include "utils.h"
 
 void test()
 {
     // 创建一个4x4的矩阵
-    Eigen::MatrixXd mat = Eigen::MatrixXd::Random(4, 4);
+    Eigen::MatrixXd mat = Eigen::MatrixXd::Zero(4, 4);
+    mat.diagonal() << 8,7,6,5;
 
     // 使用EigenSolver来计算特征值和特征向量
     // Eigen::EigenSolver<Eigen::MatrixXd> eigensolver(mat);
@@ -32,9 +33,7 @@ void test()
     {
         std::cerr << "Eigen decomposition failed." << std::endl;
     }
-
 }
-
 // Test for selfadjoint_eigensolver
 void test_selfadjoint_eigensolver() {
     int n = 4; // number of rows
@@ -159,7 +158,8 @@ void test_v_Areduced(){
 }
 
 int main(){
-    test_selfadjoint_eigensolver();
+    test();
+    // test_selfadjoint_eigensolver();
     // Eigen::MatrixXd A = Eigen::MatrixXd::Identity(3,3);
     // std::cout << A.topLeftCorner(3,3) << std::endl;
     // std::cout << A.size() << std::endl;

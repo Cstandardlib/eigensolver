@@ -109,7 +109,6 @@ void bvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs){
     if(bvecs.rows() != n || bvecs.cols() != m){
         std::cerr << "bvecs must be of size (n,m)"; return;
     }
-
     bvecs = vecs;
 }
 

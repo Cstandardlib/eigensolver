@@ -13,20 +13,20 @@ target("test")
     -- Set the language
     -- set_languages("cxx11")
     set_languages("c++17")
-    -- set_languages("c++20")
 
+    -- add sparse matrix files to build directories
     before_build(function (target)
         -- os.cp("matrix/*", "$(buildir)")
         os.cp("matrix/sparseA.mtx", "$(buildir)")
         os.cp("matrix/a1.mtx", "$(buildir)")
      end)
 
-    -- Add the source files
+    -- Add the test files
     add_files("test_lobpcg.cpp")
 
     -- add_files("tests/simple-test.cpp")
 
-    -- add_files("tests/Eigentest.cpp")
+    -- add_files("tests/eigen-test.cpp")
     -- add_files("tests/ortho-test.cpp")
     -- add_files("tests/QRtest.cpp")
     -- add_files("tests/block-test.cpp")
@@ -34,6 +34,7 @@ target("test")
     -- add_files("tests/matvec-test.cpp")
     -- add_files("tests/sparse-test.cpp")
 
+    -- Add the source files
     add_files("lobpcg.cpp")
     add_files("matvec.cpp")
     add_files("ortho.cpp")

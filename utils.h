@@ -1,5 +1,10 @@
 #ifndef UTILS_H
 #define UTILS_H
+/* includes:
+    * get_current_time          -- get current time by <chrono>
+    * check_init_guess          -- make init guess and ortho
+    * selfadjoint_eigensolver   -- wrapper for selfadjoint_eigensolver
+*/
 
 #include <Eigen/Dense>
 #include <chrono>

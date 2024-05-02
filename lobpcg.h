@@ -2,10 +2,8 @@
 #define LOBPCG_H
 
 /* includes:
+    * LOBPCG_CONSTANTS          -- defines constants(tolerance, success/fail flags)
     * logpcg_solve              -- main driver and entry point of LOBPCG
-    * get_current_time          -- get current time by <chrono>
-    * check_init_guess          -- make init guess and ortho
-    * selfadjoint_eigensolver   -- wrapper for selfadjoint_eigensolver
 */
 
 // Include necessary headers
@@ -15,7 +13,6 @@
 
 #include "test.h"
 
-// Define any required constants or types
 namespace LOBPCG_CONSTANTS {
     // 使用static constexpr以确保类型安全和编译时评估
     static constexpr double tol_zero = 1.0e-10;
@@ -59,11 +56,8 @@ int lobpcg_solve(
 //     bool verbose            // print intermediate results if true
 // )
 
-// intermediate tool functions
-// check_init_guess
-void check_init_guess(int n, int m, Eigen::MatrixXd& evec);
 
-
+// moved to ortho.h
 // basic tool functions -- linear algebra routines
 
 // ortho
@@ -77,15 +71,18 @@ void check_init_guess(int n, int m, Eigen::MatrixXd& evec);
 // void b_ortho_against_y(int n, int m, int k, Eigen::MatrixXd& x, Eigen::MatrixXd& y, Eigen::MatrixXd& by);
 
 
-// timing tools
-std::chrono::time_point<std::chrono::high_resolution_clock> get_current_time();
+// moved to utils.h
+// intermediate tool functions
+// check_init_guess
+// void check_init_guess(int n, int m, Eigen::MatrixXd& evec);
+// // timing tools
+// std::chrono::time_point<std::chrono::high_resolution_clock> get_current_time();
 
-// dense eigen solver
-int selfadjoint_eigensolver(Eigen::MatrixXd& A_to_be_eigenvecs,
- Eigen::VectorXd &eig,
- int n // dim of A
-);
-
+// // dense eigen solver
+// int selfadjoint_eigensolver(Eigen::MatrixXd& A_to_be_eigenvecs,
+//  Eigen::VectorXd &eig,
+//  int n // dim of A
+// );
 
 
 #endif // LOBPCG_H

@@ -3,12 +3,7 @@
 #include "utils.h"
 
 #include <Eigen/Dense>
-
-#include <chrono>
-
-#include <random> // make a random init guess
 #include <iostream>
-
 
 
 /**
@@ -56,11 +51,10 @@ int lobpcg_solve(
     /* ! note that eig and evec should be allocated n_max_subspace and (n,n_max_subspace),
         not n_eigenpairs and (n,n_eigenpairs) */
     
-    // --- 0. allocate and initialize ---
+// --- 0. allocate and initialize ---
 #ifdef DEBUG_LOBPCG
     std::cout << "--- 0. allocate and initialize ---" << std::endl;
 #endif
-
     /* 0.1 allocate memory for expansion space, and corresponding Matrix-Vector results and residuals
        i.e. X(n, n_max_subspace), P(n, n_active), W(n, n_active)
        if using one unified block of memory, it will need V(n, 3*n_max_subspace)
@@ -111,10 +105,10 @@ int lobpcg_solve(
     Eigen::VectorXd r_norm_2(n_max_subspace); // 2-norm of preconditioned-residuals
 
     /* 0.5 initialize time variables */
-    auto tp_start = get_current_time(); // tp means 'time point', different type from duration
-    auto tp_end = get_current_time();
-    auto tp_1 = get_current_time(); // temp time point 1 for inner durations
-    auto tp_2 = get_current_time(); // temp time point 2 for inner durations
+    auto tp_start   = get_current_time(); // tp means 'time point', different type from duration
+    auto tp_end     = get_current_time();
+    auto tp_1       = get_current_time(); // temp time point 1 for inner durations
+    auto tp_2       = get_current_time(); // temp time point 2 for inner durations
     // duration = tp_2 - tp_1, duration.count() returns second elapsed
     std::chrono::duration<double> t_solveRR;
     std::chrono::duration<double> t_avec;
@@ -123,8 +117,9 @@ int lobpcg_solve(
 
     int eig_flag = LOBPCG_CONSTANTS::eig_success; // flag for eigensolver
 
-    // --- 1. first iter ---  explicitly do the first Rayleigh-Ritz of X'AX
+// --- 1. first iter ---  explicitly do the first Rayleigh-Ritz of X'AX
     tp_start = get_current_time();      // start timing for the whole iteration algorithm
+
     /* 1.0 check for guess */
     /* check for initial guess. If not set(all zeros), generate a random
         guess from values in Uniform[0,1), and then orthogonalize */
@@ -139,8 +134,7 @@ int lobpcg_solve(
 
     /* --- Rayleigh-Ritz --- */
     /* 1.1 construct the reduced matrix and diagonalization to get first-round eigenpairs */
-    /* x <- evec */
-    x = evec;
+    x = evec; /* x <- evec */
     // v.leftCols(n_max_subspace) = evec;
 #ifdef DEBUG_LOBPCG
     // std::cout << "init guess x = \n" << x << std::endl << "and x'x = \n" << x.transpose()*x << std::endl;
@@ -159,8 +153,7 @@ int lobpcg_solve(
     /* do eigen */
     /* first round, solves only A_reduced = x'ax (n_max_subspace, n_max_subspace)
        get to use bigger A_reduced later
-       as the subspace expands from [X] to [x p w]
-    */
+       as the subspace expands from [X] to [x p w] */
 #ifdef DEBUG_LOBPCG
     std::cout << "--- first round, do eigen & solves only A_reduced = x'ax (n_max_subspace, n_max_subspace) ---" << std::endl;
 #endif
@@ -206,13 +199,11 @@ int lobpcg_solve(
 
     /* 1.5 orthogonalize W; and then orthonormalize it */
     tp_1 = get_current_time(); // t_ortho
-
     if(solving_generalized) { /* compute and b-orthogonalize bw */
-        b_ortho_against_y(n, n_max_subspace, n_max_subspace, x, bx, w);
+        b_ortho_against_y(n, n_max_subspace, n_max_subspace, w, x, bx);
         bvec(n, n_max_subspace, w, bw);     // bw = b*w
-        b_ortho(n, n_max_subspace, w, bw);  // b-orthogonalize w
+        b_ortho(n, n_max_subspace, w, bw);  // b-orthogonalize w and bw
     } else {
-        // ortho(n, n_max_subspace, w);
         ortho_against_y(n, n_max_subspace, n_max_subspace, w, x); // orthogonalize w to x
     }
     tp_2 = get_current_time();
@@ -224,14 +215,16 @@ int lobpcg_solve(
     av.leftCols(n_max_subspace) = ax;
     int index_w = n_max_subspace;
     v.middleCols(index_w, n_max_subspace) = w; // now v = [X w], w of width n_max_subspace
+
+
+// --- 2. main loop ---
 #ifdef DEBUG_LOBPCG
     std::cout << "before main loop: v = \n" << v << std::endl << "before main loop: av = \n" << av << std::endl;
 #endif
-    // --- 2. main loop ---
     /* prepare for the main loop, initialize parameters */
     // X size(n, n_max_subspace), W size(n, n_active), P size(n, n_active) in loop
-    // active searching size of w and p, changed when checking residuals and locking
 
+    // active searching size of w and p n_active, changed when checking residuals and locking
     int n_active = n_max_subspace;
     const int ACTIVE = 1;
     const int INACTIVE = 0;
@@ -242,9 +235,12 @@ int lobpcg_solve(
         std::cout << "\nLOBPCG iter starts with max_iter = " << max_iter
             << " and tolerance = " << tol << std::endl;
     }
+
+
 /* ----------------------------------------------------------------------*/
     /* start main loop */
 for(int iter = 0; iter < max_iter; ++iter){
+
 
 
     /* --- Rayleigh-Ritz --- */
@@ -258,19 +254,23 @@ for(int iter = 0; iter < max_iter; ++iter){
     t_avec += tp_2 - tp_1;
     av.middleCols(index_w, n_max_subspace) = aw;
 
+#ifdef DEBUG_LOBPCG
+    // std::cout << "v and av for constructing reduced matrix: \n";
+    // std::cout << "v = \n" << v << std::endl;
+    // std::cout << "av = \n" << av << std::endl;
+#endif
     /* 2.2 construct the reduced matrix and diagonalization */
     /* v = [x p w]*/
     /* size[
         x [0..n_max_subspace), n_max_subspace in total
-        w [n_max_subspace..n_max_subspace+n_active) n_active in total
-        p [n_max_subspace+n_active..n_max_subspace+2*n_active) n_active in total
+        p [n_max_subspace..n_max_subspace+n_active) n_active in total
+        w [n_max_subspace+n_active..n_max_subspace+2*n_active) n_active in total
        ]*/
     /* notice: here w and p should be of size(n, n_active),
        or the assignment of v will fail
     */
-    int n_working_space = n_max_subspace + 2*n_active; // current valid v size v(n, n_v)
-    // v.resize(n_working_space)
-
+    int n_working_space = n_max_subspace + 2*n_active; // current valid v size v(n, n_working_space)
+    
     // v.leftCols(n_max_subspace) = x;
     // v.middleCols(index_w, n_active) = w;
     // if(iter > 0) v.middleCols(n_max_subspace + n_active, n_active) = p; // first iter there is no p
@@ -278,9 +278,20 @@ for(int iter = 0; iter < max_iter; ++iter){
     /* av = a*v, v(n, n_working_space) */
     // avec(n, n_working_space, v, av); av is made the same time as v by merging [x p w]
     /* notice that X full(active and locked) still engage in Rayleigh-Ritz */
-    A_reduced = v.transpose() * av; // full v'av, (n_working_space x n_working_space)
+
+    //!!!!! when iter #0, v = [x w], no p here, we would not have blank columns in A_reduced, 
+    // which leads to incorrect size of A_reduced(n_max_subspace blank columns, 0 eigenvalues and unit eigenvectors)
+
+    if(0 == iter){
+        std::cout << "0th A_reduced"<<std::endl;
+        n_working_space = 2*n_max_subspace;
+        A_reduced = v.leftCols(n_working_space).transpose() * av.leftCols(n_working_space);
+    }
+    else A_reduced = v.transpose() * av; // full v'av, (n_working_space x n_working_space)
+
 #ifdef DEBUG_LOBPCG
     std::cout << "A_reduced size = " << A_reduced.rows() << " x " << A_reduced.cols() << std::endl;
+    std::cout << "A_reduced = \n" << A_reduced << std::endl;
 #endif
     tp_1 = get_current_time(); // t_solveRR
     eig_flag = selfadjoint_eigensolver(A_reduced, eig_reduced , n_working_space);
@@ -305,6 +316,9 @@ for(int iter = 0; iter < max_iter; ++iter){
         bx = bx * A_reduced.topLeftCorner(n_working_space, n_max_subspace);
     }
 #ifdef DEBUG_LOBPCG
+// std::cout << "updated A_reduced = \n" << A_reduced << std::endl;
+// std::cout << "updated x = \n" << x << std::endl;
+// std::cout << "updated ax = \n" << ax << std::endl;
     std::cout << "--- starts compute residuals & norms ---" << std::endl;
 #endif
     /* 2.4 compute residuals & norms */
@@ -345,8 +359,9 @@ for(int iter = 0; iter < max_iter; ++iter){
     // checking overall convergence for n_eigenpairs needed
     if((activeMask.head(n_eigenpairs).array() == INACTIVE).all()){
         // all vectors are locked, i.e. converged
+        std::cout << "> all of required " << n_eigenpairs << " eigenpairs converged! <" << std::endl;
         evec = x; // x(n, n_max_subspace)
-        return LOBPCG_CONSTANTS::success;
+        break; // exit main loop
     }
 
     /* 2.6 check active eigenvalues and update blockvectors X, P, W */
@@ -392,9 +407,19 @@ for(int iter = 0; iter < max_iter; ++iter){
     /* p(n, n_active) = v(n, n_working_space) * coeff_p(n_working_space, n_active)
        where v(n, n_working_space) contains old [x p w]
     */
-    p = v * coeff_p;
-    ap = v * coeff_p;
-    if(solving_generalized) bp = v * coeff_p;
+#ifdef DEBUG_LOBPCG
+    std::cout << "v size: " << v.rows() << " x " << v.cols() << std::endl;
+    std::cout << "coeff_p size: " << coeff_p.rows() << " x " << coeff_p.cols() << std::endl;
+#endif
+    // iter#0, v = [x w], n_working_space = 2*n_max_subspace
+    // else  v = [x p w], n_working_space = n_max_subspace + 2*n_active
+    p = v.leftCols(n_working_space) * coeff_p;
+    ap = v.leftCols(n_working_space) * coeff_p;
+    if(solving_generalized) bp = v.leftCols(n_working_space) * coeff_p;
+        // p = v * coeff_p;
+        // ap = v * coeff_p;
+        // if(solving_generalized) bp = v * coeff_p;
+
     // -- now p, ap, bp contains new values of step k+1
     
     /* 2.6.4 compute the preconditioned residuals W */
@@ -431,8 +456,9 @@ for(int iter = 0; iter < max_iter; ++iter){
     av.middleCols(n_max_subspace, n_active) = ap;
     // if(solving_generalized) bv.middleCols(n_max_subspace, n_active) = bp;
     /* w */
-    v.middleCols(n_max_subspace+n_active, n_active) = w;
-    av.middleCols(n_max_subspace+n_active, n_active) = aw;
+    index_w = n_max_subspace+n_active;
+    v.middleCols(index_w, n_active) = w;
+    av.middleCols(index_w, n_active) = aw;
 
 } // end -  main loop for
 
@@ -440,9 +466,9 @@ for(int iter = 0; iter < max_iter; ++iter){
     tp_end = get_current_time();
     t_total = tp_end - tp_start;
     std::cout << "LOBPCG total time: " << t_total.count() << std::endl;
+    return LOBPCG_CONSTANTS::success;
 
     // --- 3. clean up ---
     // deallocate and check
 
-}
-// end lobpcg_solve
+} // end - lobpcg_solve
