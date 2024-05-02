@@ -5,6 +5,7 @@ bin/
 
 # Ignore open source dependencies
 opensource/
+*.f90
 *.zip
 
 # Ignore compiled files
