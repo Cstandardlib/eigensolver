@@ -1,0 +1,12 @@
+%-------------------------------------------------------------------------------
+% UF Sparse Matrix Collection, Tim Davis
+% http://www.cise.ufl.edu/research/sparse/matrices/PARSEC/Si5H12
+% name: PARSEC/Si5H12
+% [Real-space pseudopotential method. Zhou, Saad, Tiago, Chelikowsky, Univ MN]
+% id: 1363
+% date: 2005
+% author: Y. Zhou, Y. Saad, M. Tiago, J. Chelikowsky
+% ed: T. Davis
+% fields: name title A id date author ed kind
+% kind: theoretical/quantum chemistry problem
+%-------------------------------------------------------------------------------

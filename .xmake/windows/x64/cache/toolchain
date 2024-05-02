@@ -1,0 +1,72 @@
+{
+    msvc_arch_x64_plat_windows = {
+        vcvars = {
+            LIBPATH = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\ATLMFC\lib\x64;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x64;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x86\store\references;C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.19041.0;C:\Program Files (x86)\Windows Kits\10\References\10.0.19041.0;C:\Windows\Microsoft.NET\Framework64\v4.0.30319]],
+            DevEnvdir = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\]],
+            WindowsSdkDir = [[C:\Program Files (x86)\Windows Kits\10\]],
+            VCToolsInstallDir = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\]],
+            UniversalCRTSdkDir = [[C:\Program Files (x86)\Windows Kits\10\]],
+            VisualStudioVersion = "16.0",
+            ExtensionSdkDir = [[C:\Program Files (x86)\Microsoft SDKs\Windows Kits\10\ExtensionSDKs]],
+            UCRTVersion = "10.0.19041.0",
+            VS160COMNTOOLS = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\]],
+            VSCMD_ARG_app_plat = "Desktop",
+            VSCMD_VER = "16.11.25",
+            VSInstallDir = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\]],
+            LIB = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\ATLMFC\lib\x64;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x64;C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\ucrt\x64;C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\um\x64]],
+            VCToolsVersion = "14.29.30133",
+            WindowsLibPath = [[C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.19041.0;C:\Program Files (x86)\Windows Kits\10\References\10.0.19041.0]],
+            VCInstallDir = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\]],
+            WindowsSdkVerBinPath = [[C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\]],
+            VCIDEInstallDir = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\VC\]],
+            INCLUDE = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\ATLMFC\include;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\cppwinrt]],
+            VSCMD_ARG_TGT_ARCH = "x64",
+            PATH = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\\Extensions\Microsoft\IntelliCode\CLI;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX64\x64;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\VC\VCPackages;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\TestWindow;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\TeamFoundation\Team Explorer;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\bin\Roslyn;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Team Tools\Performance Tools\x64;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Team Tools\Performance Tools;C:\Program Files (x86)\Microsoft Visual Studio\Shared\Common\VSPerfCollectionTools\vs2019\\x64;C:\Program Files (x86)\Microsoft Visual Studio\Shared\Common\VSPerfCollectionTools\vs2019\;C:\Program Files (x86)\HTML Help Workshop;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\devinit;C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64;C:\Program Files (x86)\Windows Kits\10\bin\x64;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\\MSBuild\Current\Bin;C:\Windows\Microsoft.NET\Framework64\v4.0.30319;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\;C:\Program Files\xmake;D:\cygwin64\usr\local\bin;D:\cygwin64\bin;D:\miniconda3\condabin;C:\Program Files\Alacritty;D:\VMware\VMware Workstation\bin;D:\Tecplot\Tecplot Chorus 2022 R1\bin;D:\Tecplot\Tecplot 360 EX 2022 R1\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.6\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.6\libnvvp;C:\Program Files\Microsoft MPI\Bin;D:\ImageMagick-7.1.0-Q16-HDRI;C:\Perl64\bin;C:\Users\CN\AppData\Roaming\ActiveState\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\MATLAB\R2016b\runtime\win64;C:\Program Files\MATLAB\R2016b\bin;C:\Program Files\MATLAB\R2016b\polyspace\bin;C:\Program Files\Git\cmd;C:\HashiCorp\Vagrant\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;D:\CMake\bin;D:\PuTTY;C:\Program Files\NVIDIA Corporation\Nsight Compute 2022.1.1;C:\ProgramData\chocolatey\bin;D:\Go\bin;C:\Program Files (x86)\Yarn\bin;C:\Users\CN\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\110\Tools\Binn;C:\Program Files (x86)\Microsoft SQL Server\120\Tools\Binn;C:\Program Files\Microsoft SQL Server\120\Tools\Binn;C:\Program Files\Microsoft SQL Server\120\DTS\Binn;C:\Program Files (x86)\Windows Kits\8.1\Windows Performance Toolkit;D:\Bdwp;C:\Program Files\starship\bin;D:\Lua\5.1;D:\Lua\5.1\clibs;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\WezTerm;C:\Program Files\MySQL\MySQL Shell 8.0\bin;D:\miniconda3;D:\miniconda3\Library\mingw-w64\bin;D:\miniconda3\Library\usr\bin;D:\miniconda3\Library\bin;D:\miniconda3\Scripts;C:\Users\CN\.cargo\bin;C:\Users\CN\AppData\Local\Microsoft\WindowsApps;C:\mingw64\bin;C:\MinGW\bin;D:\Vim\vim82;C:\Program Files\Git\bin;C:\Users\CN\AppData\Local\SumatraPDF;D:\Microsoft VS Code\bin;D:\Oracle\VirtualBox;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\Hostx64\x64;C:\Users\CN\go\bin;D:\cygwin64;C:\Users\CN\AppData\Local\Yarn\bin;C:\Users\CN\AppData\Roaming\nvm\v16.15.1;D:\anaconda3\bin;D:\Haskell\bin;D:\ghcup\ghc\8.10.7\bin;D:\bilibili;D:\vcpkg;C:\Program Files\R\R-4.2.1\bin;D:\MiKTeX\miktex\bin\x64;C:\Program Files\Microsoft V;C:\Program Files\My;C:\Program Files\JetBrains\RustRover 232.9921.62\bin;D:\VMware\VMware Workstation;D:\Neovim\bin;C:\Users\CN\AppData\Local\Microsoft\WinGet\Packages\tldr-pages.tlrc_Microsoft.Winget.Source_8wekyb3d8bbwe;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja]],
+            VCToolsRedistDir = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Redist\MSVC\14.29.30133\]],
+            WindowsSdkBinPath = [[C:\Program Files (x86)\Windows Kits\10\bin\]],
+            VSCMD_ARG_HOST_ARCH = "x64",
+            WindowsSDKVersion = "10.0.19041.0"
+        },
+        vcarchs = {
+            "arm64",
+            "x64",
+            "x86"
+        },
+        plat = "windows",
+        __global = true,
+        arch = "x64",
+        vs_toolset = "14.29.30133",
+        vs_sdkver = "10.0.19041.0",
+        vs = "2019"
+    },
+    tool_target_test_windows_x64_cxx = {
+        toolname = "cl",
+        program = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX64\x64\cl.exe]],
+        toolchain_info = {
+            name = "msvc",
+            arch = "x64",
+            plat = "windows",
+            cachekey = "msvc_arch_x64_plat_windows"
+        }
+    },
+    tool_target_test_windows_x64_ld = {
+        toolname = "link",
+        program = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX64\x64\link.exe]],
+        toolchain_info = {
+            name = "msvc",
+            arch = "x64",
+            plat = "windows",
+            cachekey = "msvc_arch_x64_plat_windows"
+        }
+    },
+    tool_target_test_windows_x64_cc = {
+        toolname = "cl",
+        program = [[C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX64\x64\cl.exe]],
+        toolchain_info = {
+            name = "msvc",
+            arch = "x64",
+            plat = "windows",
+            cachekey = "msvc_arch_x64_plat_windows"
+        }
+    }
+}
