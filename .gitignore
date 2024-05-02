@@ -1,0 +1,25 @@
+# Ignore build directories
+build/
+dist/
+bin/
+
+# Ignore open source dependencies
+opensource/
+*.zip
+
+# Ignore compiled files
+*.o
+*.class
+*.pyc
+*.exe
+
+# Ignore temporary files
+*.tmp
+*.bak
+*.swp
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+*.sln
+*.csproj
