@@ -22,9 +22,9 @@ target("test")
      end)
 
     -- Add the source files
-    -- add_files("test_lobpcg.cpp")
+    add_files("test_lobpcg.cpp")
 
-    add_files("tests/simple-test.cpp")
+    -- add_files("tests/simple-test.cpp")
 
     -- add_files("tests/Eigentest.cpp")
     -- add_files("tests/ortho-test.cpp")
@@ -34,9 +34,10 @@ target("test")
     -- add_files("tests/matvec-test.cpp")
     -- add_files("tests/sparse-test.cpp")
 
-    -- add_files("lobpcg.cpp")
-    -- add_files("matvec.cpp")
-    -- add_files("ortho.cpp")
+    add_files("lobpcg.cpp")
+    add_files("matvec.cpp")
+    add_files("ortho.cpp")
+    add_files("utils.cpp")
 
     -- Add the include directories
     add_includedirs("eigen")

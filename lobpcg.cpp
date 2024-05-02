@@ -1,5 +1,6 @@
 #include "lobpcg.h"
 #include "ortho.h"
+#include "utils.h"
 
 #include <Eigen/Dense>
 
@@ -60,68 +61,61 @@ int lobpcg_solve(
     std::cout << "--- 0. allocate and initialize ---" << std::endl;
 #endif
 
-    /* 0.0 allocate memory for lapack */
-    /* no need at present, use other wrapped API instead*/
-    // lwork
-    // allocate work, used in dsyev
-
     /* 0.1 allocate memory for expansion space, and corresponding Matrix-Vector results and residuals
-       i.e. X(n, n_max_subspace), W(n, n_active), P(n, n_active)
+       i.e. X(n, n_max_subspace), P(n, n_active), W(n, n_active)
        if using one unified block of memory, it will need V(n, 3*n_max_subspace)
     2 ways of doing x, w, p
-       1. we can construct v, av, A_reduced = V'AV only when needed by Rayleigh-Ritz instead
-       of stroring x, w, p together in v
+       1. we can construct v, av, A_reduced = V'AV only when needed by Rayleigh-Ritz instead of stroring x, w, p together in v
        2. we can use v as [x p w] and access different parts of v as x, p, w
 
-       https://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
-       As it is often confusing to use Eigen's templated base classes,
-       we will use <1> (i.e. to construct A_reduced as needed) instead of <2>.
+       https://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html  block params need to be passed as MatrixBase<>
+       As it is often confusing to use Eigen's templated base classes, we will use <1> (i.e. to construct A_reduced as needed).
     */
-    int size_space = 3*n_max_subspace;  // Matrix<typename _Scalar, int _Rows, int _Cols, ...>
-    Eigen::MatrixXd v(n, size_space);   // dynamic searching space V = [x p w], n x (n_max_subspace+2*n_active)
+    int size_space = 3*n_max_subspace;  // total max space size of V = [x p w]
+    // dynamic searching space V(n, n_working_space) = [x p w]
+    // n_working_space=n_max_subspace+2*n_active will change in the main loop
+    Eigen::MatrixXd v(n, size_space);
     Eigen::MatrixXd av(n, size_space);
     /* since we only use bx, bp for b-orthogonalization of w(in need of [x p], [wx wp])
-        we will not store bv but to get b[x p] when needed(in 2.7) instead
-    */
+        we will not store bv but to get b[x p] when needed(in 2.7) instead */
     // Eigen::MatrixXd bv(n, size_space);
-    // due to Lazy Evaluation and Aliasing of Eigen, we will not need to
-    // set values of v,av,bv until we need them to construct A_reduced=v'av
     v.setZero(); av.setZero(); // bv.setZero();
-
-    Eigen::MatrixXd r(n, n_max_subspace);       // residuals
-    Eigen::MatrixXd w(n, n_max_subspace);       // preconditioned residuals
-    Eigen::MatrixXd p(n, n_max_subspace); 
-    r.setZero(); w.setZero(); p.setZero();
  
     /* 0.2 allocate memory for temporary copies of X, AX, BX */
-    Eigen::MatrixXd x(n, n_max_subspace);  
+    Eigen::MatrixXd x(n, n_max_subspace);       // X(n, n_max_subspace)
     Eigen::MatrixXd ax(n, n_max_subspace); 
     Eigen::MatrixXd bx(n, n_max_subspace);
     x.setZero(); ax.setZero(); bx.setZero();
+
+    Eigen::MatrixXd r(n, n_max_subspace);       // residuals, r(n, n_active)
+    Eigen::MatrixXd w(n, n_max_subspace);       // preconditioned residuals w(n, n_active)
     Eigen::MatrixXd aw(n, n_max_subspace);
-    Eigen::MatrixXd ap(n, n_max_subspace); 
-    aw.setZero(); ap.setZero();
-    Eigen::MatrixXd bw(n, n_max_subspace); // only used for b-ortho w
+    Eigen::MatrixXd bw(n, n_max_subspace);      // only used for b-ortho w
+    r.setZero();  w.setZero(); aw.setZero(); bw.setZero();
+
+    Eigen::MatrixXd p(n, n_max_subspace);       // implicit difference between current and previous eigvec approx, P(n, n_active)
+    Eigen::MatrixXd ap(n, n_max_subspace);
     Eigen::MatrixXd bp(n, n_max_subspace); 
-    bw.setZero(); bp.setZero();
+    p.setZero(); ap.setZero(); bp.setZero();
 
     /* 0.3 allocate memory for the reduced matrix and its eigenvalues */
-    // fixed size A_reduced(size_space, size_space), eig_reduced(size_space)
-    // the subspace expands from [X] to [x p w]
+    /* soft locking by Knyazev, all X, active p, active w will engage in Rayleigh-Ritz */
+    // dynamic size A_reduced(n_working_space, n_working_space), eig_reduced(n_working_space)
+    // the subspace expands from V=[X] to v=[x p w], A_reduced = v'av
     // where X has the width of n_max_subspace, while W and P have the width of n_active
     Eigen::MatrixXd A_reduced(size_space, size_space); A_reduced.setZero();
     Eigen::VectorXd eig_reduced(size_space); eig_reduced.setZero();
 
     /* 0.4 allocate memory for convergence check */
-    // std::vector<bool> done(n_max_subspace);
-    Eigen::VectorXd r_norm_2(n_max_subspace); // 2-norm
+    // Eigen::VectorXi activeMask(n_max_subspace) will be defined before we start main loop
+    Eigen::VectorXd r_norm_2(n_max_subspace); // 2-norm of preconditioned-residuals
 
     /* 0.5 initialize time variables */
-    auto tp_start = get_current_time(); // tp for time point, different from duration
+    auto tp_start = get_current_time(); // tp means 'time point', different type from duration
     auto tp_end = get_current_time();
     auto tp_1 = get_current_time(); // temp time point 1 for inner durations
     auto tp_2 = get_current_time(); // temp time point 2 for inner durations
-    // duration default 0
+    // duration = tp_2 - tp_1, duration.count() returns second elapsed
     std::chrono::duration<double> t_solveRR;
     std::chrono::duration<double> t_avec;
     std::chrono::duration<double> t_ortho;
@@ -387,12 +381,12 @@ for(int iter = 0; iter < max_iter; ++iter){
     // in c_p: c_x - I where x is active, i.e. n_max_subspace-n_active to n_max_subspace-1
     // auto c_p = coeff.block(n_max_subspace-n_active, n_max_subspace-n_active,n_active,n_active);
     // c_p -= Eigen::MatrixXd::Identity(n_active, n_active);
-    
+    /* do not change coeff of x, but change coeff of p itself
+        because coeff_p needs to be ortho against original c_x */
     Eigen::MatrixXd coeff_p = coeff.middleCols(n_max_subspace-n_active,n_active);
     auto c_active = coeff_p.middleRows(n_max_subspace-n_active, n_active);
     c_active -= Eigen::MatrixXd::Identity(n_active, n_active);
-    // ortho coeff p against coeff x
-    // size(n_working_space, n_active)
+    // ortho coeff p(n_working_space, n_active) against coeff x(n_working_space, n_max_subspace)
     ortho_against_y(n_working_space, n_max_subspace, n_active, coeff_p, coeff);
     // -- end of computing the coefficients of p
     /* p(n, n_active) = v(n, n_working_space) * coeff_p(n_working_space, n_active)
@@ -451,109 +445,4 @@ for(int iter = 0; iter < max_iter; ++iter){
     // deallocate and check
 
 }
-
-// intermediate tool functions
-// check_init_guess
-
-// check_guess - 检查给定的矩阵evec是否为零矩阵或者是否正交。
-// 如果evec为零矩阵，将用随机数填充并正交化。
-// 如果evec不正交，将进行正交化处理。
-/**
- * @brief Checks the validity of the given guess matrix and performs orthogonalization if necessary.
- * 
- * If evec is zero, provide a random guess, filled by uniform [0,1).
- * 
- * @param n The number of rows in the guess matrix.
- * @param m The number of columns in the guess matrix.
- * @param evec The guess matrix to be checked and orthogonalized if needed.
- */
-void check_init_guess(int n, int m, Eigen::MatrixXd& evec) {
-    double enorm = evec.norm(); // 计算矩阵的范数
-// #ifdef DEBUG_LOBPCG
-//     std::cout << "-- start check_init_guess --" << std::endl;
-// #endif
-    if (std::abs(enorm) < LOBPCG_CONSTANTS::tol_zero) {
-        // if evec is all zero(which means no initial guess is provided by user), fill it with random values in U[0,1)
-        std::default_random_engine engine;
-        std::uniform_real_distribution<double> dist(0.0, 1.0);
-        for (int i = 0; i < n*m; ++i) evec(i) = dist(engine);
-        ortho(n, m, evec);// orthogonalize evec
-    } else {
-        // compute overlao matrix M = X^T X (size m*m), and do ortho
-        // first check for orthogonality: whether X^TX == Identity
-        Eigen::MatrixXd overlap = evec.transpose() * evec;
-        double diag_norm = overlap.diagonal().array().square().sum();   // square sum of overlap diagonal
-        double out_norm = (overlap.array().square()).sum() - diag_norm; // square sum of non-diagonal elements
-        
-        // 检查对角线元素是否为1，非对角线元素是否为0
-        if (std::abs(diag_norm - m) > 1e-10 || std::abs(out_norm) > 1e-10) {
-            // 如果不正交，进行正交化处理
-            ortho(n, m, evec);
-        }
-    }
-// #ifdef DEBUG_LOBPCG
-//     std::cout << "-- end check_init_guess --" << std::endl;
-// #endif
-}
-
-
-// timing tools
-/*
- * wrap for std::chrono::high_resolution_clock::now();
- * auto start = get_current_time();
- * auto end = get_current_time();
- * std::chrono::duration<double> duration = end - start;
- */
-std::chrono::time_point<std::chrono::high_resolution_clock> get_current_time() {
-    return std::chrono::high_resolution_clock::now();
-}
-
-
-// dense eigen solver
-/* overwrite A and eig
- * solves eigenvalue and eigenvectors of a selfadjoint(i.e. inverse equal to its adjoint) matrix A.
- * solve A_nn(n, n) topleft corner of size n input
-*/
-
-
-int selfadjoint_eigensolver(Eigen::MatrixXd &A_to_be_eigenvecs, Eigen::VectorXd &eig, int n)
-{
-#ifdef DEBUG_LOBPCG
-    std::cout << "--- starts eigensolver ---" << std::endl;
-    std::cout << "A size: " << A_to_be_eigenvecs.size() <<", ("<<A_to_be_eigenvecs.rows()<<", "<<A_to_be_eigenvecs.cols()<<")" <<std::endl;
-#endif
-    if(A_to_be_eigenvecs.rows() != n || A_to_be_eigenvecs.cols()!=n){
-        std::cerr << "input matrix must be of size (n,n) = "<<"("<<n<<", "<<n<<")"<<std::endl; return LOBPCG_CONSTANTS::eig_fail;
-    }
-    if(eig.size() < n){
-        std::cerr << "eigenvalues vector must not be smaller than n = "<<n<<std::endl; return LOBPCG_CONSTANTS::eig_fail;
-    }
-#ifdef DEBUG_EIGENSOLVER
-    std::cout << "A size: " << A_to_be_eigenvecs.size() <<", ("<<A_to_be_eigenvecs.rows()<<", "<<A_to_be_eigenvecs.cols()<<")" <<std::endl;
-    // std::cout << "original A = \n" << A_to_be_eigenvecs << std::endl;
-    std::cout << "n = " << n << std::endl;
-    std::cout << "solving A(" << n << "," << n << ") matrix" << std::endl;
-    // Eigen::MatrixXd A_nn = A_to_be_eigenvecs.topLeftCorner(n,n);// topleft corner of A_to_be_eigenvecs
-    std::cout << "A to be solved = \n" << A_to_be_eigenvecs << std::endl;
-#endif
-    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigensolver(A_to_be_eigenvecs);
-    if (eigensolver.info() == Eigen::Success)
-    {
-        eig.head(n) = eigensolver.eigenvalues();
-        // A_to_be_eigenvecs.topLeftCorner(n,n) = eigensolver.eigenvectors();
-        A_to_be_eigenvecs = eigensolver.eigenvectors();
-#ifdef DEBUG_EIGENSOLVER
-        std::cout << "The eigenvalues are:\n" << eig << std::endl;
-        std::cout << "The eigenvectors are:\n" << A_to_be_eigenvecs << std::endl;
-#endif
-    }
-    else
-    {
-        std::cerr << "Eigen decomposition failed." << std::endl;
-        return LOBPCG_CONSTANTS::eig_fail;
-    }
-    return LOBPCG_CONSTANTS::eig_success;
-#ifdef DEBUG_LOBPCG
-    std::cout << "--- end eigensolver ---" << std::endl;
-#endif
-}
+// end lobpcg_solve
