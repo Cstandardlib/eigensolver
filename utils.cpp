@@ -90,7 +90,7 @@ int selfadjoint_eigensolver(Eigen::MatrixXd &A_to_be_eigenvecs, Eigen::VectorXd 
         std::cerr << "eigenvalues vector must not be smaller than n = "<<n<<std::endl; return LOBPCG_CONSTANTS::eig_fail;
     }
 #ifdef DEBUG_EIGENSOLVER
-    std::cout << "A size: " << A_to_be_eigenvecs.size() <<", ("<<A_to_be_eigenvecs.rows()<<", "<<A_to_be_eigenvecs.cols()<<")" <<std::endl;
+    // std::cout << "A size: " << A_to_be_eigenvecs.size() <<", ("<<A_to_be_eigenvecs.rows()<<", "<<A_to_be_eigenvecs.cols()<<")" <<std::endl;
     // std::cout << "original A = \n" << A_to_be_eigenvecs << std::endl;
     std::cout << "n = " << n << std::endl;
     std::cout << "solving A(" << n << "," << n << ") matrix" << std::endl;
