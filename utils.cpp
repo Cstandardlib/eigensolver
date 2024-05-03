@@ -105,7 +105,7 @@ int selfadjoint_eigensolver(Eigen::MatrixXd &A_to_be_eigenvecs, Eigen::VectorXd 
         A_to_be_eigenvecs = eigensolver.eigenvectors();
 #ifdef DEBUG_EIGENSOLVER
         std::cout << "The eigenvalues are:\n" << eig << std::endl;
-        std::cout << "The eigenvectors are:\n" << A_to_be_eigenvecs << std::endl;
+        // std::cout << "The eigenvectors are:\n" << A_to_be_eigenvecs << std::endl;
 #endif
     } else {
         std::cerr << "Eigen decomposition failed." << std::endl;
