@@ -202,7 +202,6 @@ void ortho_against_y(int n, int m, int k, Eigen::MatrixXd& x, const Eigen::Matri
     double diag_norm = yby.diagonal().array().square().sum();
     double out_norm = (yby.array().square()).sum() - diag_norm;
     if (!( (std::abs(diag_norm - m) <= tol_ortho) && (std::abs(out_norm) <= tol_ortho) )){
-
         std::cout << "Input y is not orthonormal! continue by Solving Y^TY" << std::endl;
 #ifdef DEBUG_ORTHO
         std::cout << "y = \n" << y << std::endl << "yby = \n" << yby << std::endl;
@@ -252,6 +251,7 @@ void ortho_against_y(int n, int m, int k, Eigen::MatrixXd& x, const Eigen::Matri
         // compute overlap norm ||y^T x|| after x orthonormalization
         overlap = y.transpose() * x;
         norm_overlap = overlap.norm();
+        // 判定条件：norm_overlap >= tol_ortho
 #ifdef DEBUG_LOBPCG
         // std::cout << " norm = " << norm_overlap << std::endl;
 #endif

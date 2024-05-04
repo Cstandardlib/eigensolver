@@ -140,20 +140,18 @@ std::cout << "initial guess = \n" << evec << std::endl;
     if(solving_generalized) {
         bvec(n, n_max_subspace, evec, bx);      // bx <- b*evec
         b_ortho(n, n_max_subspace, evec, bx);   // b-ortho bx against evec
-    }
 #ifdef DEBUG_LOBPCG
-if(solving_generalized){
     std::cout << "init bx = \n" << bx << std::endl;
     std::cout << "guess (bx)'b(bx) = \n" << bx.transpose() * bx << std::endl;
-}
 #endif   
+    }
+
     /* --- Rayleigh-Ritz --- */
     /* 1.1 construct the reduced matrix and diagonalization to get first-round eigenpairs */
     x = evec; /* x <- evec */
-
-    /* ax <- a*evec */
+    
     tp_1 = get_current_time();
-    avec(n, n_max_subspace, evec, ax);
+    avec(n, n_max_subspace, evec, ax); /* ax <- a*evec */
     tp_2 = get_current_time();
     t_avec += tp_2 - tp_1;
     // av.leftCols(n_max_subspace) = ax;
@@ -162,16 +160,14 @@ if(solving_generalized){
 
     /* first round, A_reduced <- X' * AX */
     A_reduced = x.transpose() * ax;
-    /* do eigen */
+    /* do eigen A_reduced u = \lambda u */
     /* first round, solves only A_reduced = x'ax (n_max_subspace, n_max_subspace)
        get to use bigger A_reduced later
        as the subspace expands from [X] to [x p w] */
-
-    tp_1 = get_current_time();
-    /* A_reduced u = \lambda u */
 #ifdef DEBUG_LOBPCG
 std::cout << "first round A_reduced = \n" << A_reduced << std::endl;
 #endif
+    tp_1 = get_current_time();
     eig_flag = selfadjoint_eigensolver(A_reduced, eig_reduced, n_max_subspace); // V=[X], use(n, n_max_subspace) of (n, 3*n_max_subspace)
     if(eig_flag == LOBPCG_CONSTANTS::eig_fail){
         std::cerr << "eigensolver failed in first round" << std::endl;
@@ -179,6 +175,7 @@ std::cout << "first round A_reduced = \n" << A_reduced << std::endl;
     }
 #ifdef DEBUG_LOBPCG
 std::cout << "first round A_reduced diag = \n" << A_reduced << std::endl;
+std::cout << "first round A_reduced' * A_reduced = \n" << A_reduced.transpose()*A_reduced << std::endl;
 #endif
     /* now A_reduced(n_max_subspace, n_max_subspace) contains eigenvectors and eig_reduced contains eigenvalues */
     tp_2 = get_current_time();
@@ -186,7 +183,7 @@ std::cout << "first round A_reduced diag = \n" << A_reduced << std::endl;
     eig = eig_reduced.head(n_max_subspace);
 
     /* 1.2 compute the Ritz vectors, X, AX and if required, BX */
-    /* update new guess X_1 = X_0 u, update corresponding V[X] left n_max_subspace columns */
+    /* update new guess X_1 = X_0 * u, update corresponding V[X] left n_max_subspace columns */
     /* x <- x * A_reduced*/
     x = x * A_reduced.topLeftCorner(n_max_subspace,n_max_subspace);
     // v.leftCols(n_max_subspace) = v.leftCols(n_max_subspace) * A_reduced.topLeftCorner(n_max_subspace,n_max_subspace);
@@ -210,8 +207,6 @@ std::cout << "first round A_reduced diag = \n" << A_reduced << std::endl;
 
     /* 1.4 compute the preconditioned residuals W = TR */
     precnd(n, n_max_subspace, r, w);   // w = t * r
-    /* [X W]  0~n_max_subspace-1 | n_max_subspace~2*n_max_subspace-1 */
-    
 
     /* 1.5 orthogonalize W; and then orthonormalize it */
     tp_1 = get_current_time(); // t_ortho
@@ -226,7 +221,8 @@ std::cout << "first round A_reduced diag = \n" << A_reduced << std::endl;
     t_ortho += tp_2 - tp_1;
 
     /* 1.6 build first round v and av */
-    /* x */
+    /* v = [X W]  0~n_max_subspace-1 | n_max_subspace~2*n_max_subspace-1 */
+    /* size n x (n_max_subspace | n_max_subspace)*/
     v.leftCols(n_max_subspace) = x;
     av.leftCols(n_max_subspace) = ax;
     int index_w = n_max_subspace;
@@ -235,6 +231,7 @@ std::cout << "first round A_reduced diag = \n" << A_reduced << std::endl;
 // --- 2. main loop ---
 #ifdef DEBUG_LOBPCG
     std::cout << "before main loop: v = \n" << v << std::endl << "before main loop: av = \n" << av << std::endl;
+    std::cout << "v'av = \n" << v.transpose()*av << std::endl;
 #endif
     /* prepare for the main loop, initialize parameters */
     // X size(n, n_max_subspace), W size(n, n_active), P size(n, n_active) in loop
@@ -260,7 +257,6 @@ std::cout << "first round A_reduced diag = \n" << A_reduced << std::endl;
                 << std::setw(11) << "converged"
                 << std::endl;
     }
-
 
 /* ----------------------------------------------------------------------*/
     /* start main loop */
@@ -295,13 +291,7 @@ for(int iter = 0; iter < max_iter; ++iter){
         w [n_max_subspace+n_active..n_max_subspace+2*n_active) n_active in total
        ]*/
     /* notice: here w and p should be of size(n, n_active),
-       or the assignment of v will fail
-    */
-    
-    
-    // v.leftCols(n_max_subspace) = x;
-    // v.middleCols(index_w, n_active) = w;
-    // if(iter > 0) v.middleCols(n_max_subspace + n_active, n_active) = p; // first iter there is no p
+       or the assignment of v will fail */
 
     /* av = a*v, v(n, n_working_space) */
     // avec(n, n_working_space, v, av); av is made the same time as v by merging [x p w]
@@ -310,10 +300,7 @@ for(int iter = 0; iter < max_iter; ++iter){
     //!!!!! when iter #0, v = [x w], no p here, we would not have blank columns in A_reduced, 
     // which leads to incorrect size of A_reduced(n_max_subspace blank columns, 0 eigenvalues and unit eigenvectors)
     n_working_space = n_max_subspace + 2*n_active; // current valid v size v(n, n_working_space)
-    if(0 == iter){
-        // std::cout << "0th A_reduced"<<std::endl;
-        n_working_space = 2*n_max_subspace;
-    }
+    if(0 == iter) n_working_space = 2*n_max_subspace;
     A_reduced = v.leftCols(n_working_space).transpose() * av.leftCols(n_working_space);
 
 #ifdef DEBUG_LOBPCG
@@ -370,6 +357,7 @@ x, ax is new[k+1]
         } else {
             r.col(i) -= eig(i) * x.col(i); // r = ax - eig*x
         }
+        // r 矩阵第 i_eig 列的二范数。
         r_norm_2(i) = r.col(i).norm(); // r_norm_2(i) = ||r_i||_2
     }
 #ifdef DEBUG_LOBPCG
@@ -381,7 +369,7 @@ x, ax is new[k+1]
         // alreadhy locked
         if(activeMask(i) != ACTIVE) continue;
 
-        if(r_norm_2(i) < tol*std::sqrt(n)
+        if(r_norm_2(i) < tol*std::sqrt(static_cast<double>(n))
 /*???*/
             && iter >0
         ){
@@ -399,6 +387,7 @@ x, ax is new[k+1]
             //     << Eigen::VectorXi::Constant(n_max_subspace-1-i, ACTIVE) << std::endl;
 #endif 
             activeMask.segment(i+1, n_max_subspace-1-i) = Eigen::VectorXi::Constant(n_max_subspace-1-i, ACTIVE);
+            // for(int j=i+1; j<n_max_subspace; ++j) activeMask(j) = ACTIVE;
 #ifdef DEBUG_LOBPCG
             // std::cout << "eigvecs from " << (i+1) << " to " << n_max_subspace-1 << " are re-activated" << std::endl;
 #endif            
@@ -456,7 +445,13 @@ x, ax is new[k+1]
 #endif
     // -- compute the coefficients of p
     /* coeff consists of c_x, c_p, c_w */
+    // print A_reduced size
+    std::cout << "A_reduced size: " << A_reduced.rows() << " x " << A_reduced.cols() << std::endl;
+    // print A'A
+    std::cout << "A_reduced'A_reduced = \n" << A_reduced.transpose() * A_reduced << std::endl;
     Eigen::MatrixXd coeff = A_reduced.topLeftCorner(n_working_space, n_max_subspace);
+    //print coeff'coeff
+    std::cout << "coeff'coeff = \n" << coeff.transpose() * coeff << std::endl;
     // in c_p: c_x - I where x is active, i.e. n_max_subspace-n_active to n_max_subspace-1
     // auto c_p = coeff.block(n_max_subspace-n_active, n_max_subspace-n_active,n_active,n_active);
     // c_p -= Eigen::MatrixXd::Identity(n_active, n_active);
@@ -498,7 +493,9 @@ x, ax is new[k+1]
     // else  v = [x p w], n_working_space = n_max_subspace + 2*n_active
     // p(n, n_active) = x(n, n_working_space) * coeff_p(n_working_space, n_active)
     p = v.leftCols(n_working_space) * coeff_p;
-    ap = v.leftCols(n_working_space) * coeff_p;
+    // ap = v.leftCols(n_working_space) * coeff_p;
+// !!!!!!!!!!!!!!!!!!!
+    ap = av.leftCols(n_working_space) * coeff_p;
 /*???
 how to maintain bv
 */    
@@ -515,6 +512,7 @@ how to maintain bv
     std::cout << "x, p already updated, w to be done" << std::endl;
     std::cout << "updated v[x p w] = \n" << v << std::endl;
     std::cout << "updated av[x p w] = \n" << av << std::endl;
+    std::cout << "updated v'av[x p w] = \n" << v.transpose() * av << std::endl;
 #endif
 
     // -- now p, ap, bp contains new values of step k+1

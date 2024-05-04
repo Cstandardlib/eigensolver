@@ -18,6 +18,7 @@ opensource/
 *.tmp
 *.bak
 *.swp
+./*.txt
 
 # Ignore IDE-specific files
 .vscode/
