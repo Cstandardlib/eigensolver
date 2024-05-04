@@ -1,6 +1,32 @@
 -- xmake.lua
 
 -- Define the project
+target("main")
+    set_kind("binary")
+
+    set_languages("c++17")
+
+    -- add sparse matrix files to build directories
+    before_build(function (target)
+        -- os.cp("matrix/*", "$(buildir)")
+        os.cp("matrix/sparseA.mtx", "$(buildir)")
+        os.cp("matrix/a1.mtx", "$(buildir)")
+     end)
+
+    -- Add the test files
+    add_files("test_lobpcg.cpp")
+
+    -- Add the source files
+    add_files("lobpcg.cpp")
+    add_files("matvec.cpp")
+    add_files("ortho.cpp")
+    add_files("utils.cpp")
+
+    -- Add the include directories
+    add_includedirs("eigen")
+    add_includedirs("fast_matrix_market/include")
+    add_includedirs(".")
+
 target("test")
 
     -- Set the project directory
@@ -22,7 +48,7 @@ target("test")
      end)
 
     -- Add the test files
-    add_files("test_lobpcg.cpp")
+    -- add_files("test_lobpcg.cpp")
 
     -- add_files("tests/simple-test.cpp")
 
@@ -31,14 +57,14 @@ target("test")
     -- add_files("tests/QRtest.cpp")
     -- add_files("tests/block-test.cpp")
     -- add_files("tests/time-test.cpp")
-    -- add_files("tests/matvec-test.cpp")
+    add_files("tests/matvec-test.cpp")
     -- add_files("tests/sparse-test.cpp")
 
     -- Add the source files
-    add_files("lobpcg.cpp")
+    -- add_files("lobpcg.cpp")
     add_files("matvec.cpp")
-    add_files("ortho.cpp")
-    add_files("utils.cpp")
+    -- add_files("ortho.cpp")
+    -- add_files("utils.cpp")
 
     -- Add the include directories
     add_includedirs("eigen")
