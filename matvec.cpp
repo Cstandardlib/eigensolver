@@ -61,14 +61,20 @@ void sparseAvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avec
     fast_matrix_market::read_matrix_market_eigen(f, mat);
     // std::cout << mat << std::endl;
     if(mat.rows() != n || mat.cols() != n){
-        std::cerr << "input sparse matrix must be of size (n,n) = "<<"("<<n<<", "<<n<<")"; return;
+        std::cerr << "input sparse matrix must be of size (n,n) = "<<"("<<n<<", "<<n<<"), but "
+                    << "size ("<<mat.rows()<<", "<<mat.cols()<<") is provided" << std::endl;
+        return;
     }
     // check vecs and avecs are of size(n,m)
     if(vecs.rows() != n || vecs.cols() != m){
-        std::cerr << "vecs must be of size (n,m)"; return;
+        std::cerr << "vecs must be of size (n,m) = "<<"("<<n<<", "<<m<<"), but "
+                    << "size ("<<vecs.rows()<<", "<<vecs.cols()<<") is provided" << std::endl;
+        return;
     }
     if(avecs.rows() != n || avecs.cols() != m){
-        std::cerr << "bvecs must be of size (n,m)"; return;
+        std::cerr << "avecs must be of size (n,m) = "<<"("<<n<<", "<<m<<"), but "
+                    << "size ("<<avecs.rows()<<", "<<avecs.cols()<<") is provided" << std::endl;
+        return;
     }
 
     avecs = mat * vecs;

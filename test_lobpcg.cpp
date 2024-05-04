@@ -9,6 +9,8 @@
 // identity matrix-vector product
 void _no_matvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& still_vecs){
     // do nothing but copy, still_vecs = I*vesc
+    // print size n,m
+    // std::cout << "_no_matvec is called for size(n,m) = "<<"("<<n<<", "<<m<<")" << std::endl;
     still_vecs.topLeftCorner(n,m) = vecs.topLeftCorner(n,m);
 }
 
@@ -23,8 +25,8 @@ void _diag_matvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& af
 // sparseA.mtx 20*20 diag
 void test_sparse_diag_A() {
     int n = 20;//100;
-    int n_eigenpairs = 2;//5;
-    int n_max_subspace = 4;//10; // n_eig = min(2*n_want, n_want + 5)
+    int n_eigenpairs = 3;//5;
+    int n_max_subspace = 6;//10; // n_eig = min(2*n_want, n_want + 5)
     bool solving_generalized = false;
     int max_iter = 10;
     double tol = 1e-6;
@@ -34,12 +36,19 @@ void test_sparse_diag_A() {
     Eigen::VectorXd eig(n_max_subspace);
     Eigen::MatrixXd evec(n, n_max_subspace);
     eig.setZero(); evec.setZero();
-    int ok = lobpcg_solve(sparseAvec, precnd, bvec, eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
+    int ok = lobpcg_solve(
+        sparseAvec,/*_diag_matvec*//*a1vec*/
+        _no_matvec,
+        _no_matvec/*bvec*/,
+        eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
     // lobpcg_solve(avec, precnd, bvec, eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, ok, verbose);
 
     // Perform assertions to check if the results are correct
     // ...
     if(ok != LOBPCG_CONSTANTS::success) std::cerr<< "not ok! "<< std::endl;
+    else std::cout << "ok! converged "<< std::endl;
+    std::cout << "------- final -------" << std::endl;
+    std::cout << "LOBPCG eigenvalues = \n"<< eig << std::endl;
 }
 
 
@@ -87,7 +96,7 @@ void test_a1_9() {
 
 
 int main(){
-    // test_sparse_diag_A();
-    test_a1_9();
+    test_sparse_diag_A();
+    // test_a1_9();
     return 0;
 }

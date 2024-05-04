@@ -87,7 +87,7 @@ std::chrono::time_point<std::chrono::high_resolution_clock> get_current_time() {
  */
 int selfadjoint_eigensolver(Eigen::MatrixXd &A_to_be_eigenvecs, Eigen::VectorXd &eig, int n)
 {
-#ifdef DEBUG_LOBPCG
+#ifdef DEBUG_EIGENSOLVER
     std::cout << "--- starts eigensolver ---" << std::endl;
     std::cout << "A size: " << A_to_be_eigenvecs.size() <<", ("<<A_to_be_eigenvecs.rows()<<", "<<A_to_be_eigenvecs.cols()<<")" <<std::endl;
 #endif
@@ -121,7 +121,7 @@ int selfadjoint_eigensolver(Eigen::MatrixXd &A_to_be_eigenvecs, Eigen::VectorXd 
         std::cerr << "Eigen decomposition failed." << std::endl;
         return LOBPCG_CONSTANTS::eig_fail;
     }
-#ifdef DEBUG_LOBPCG
+#ifdef DEBUG_EIGENSOLVER
     std::cout << "--- end eigensolver ---" << std::endl;
 #endif
     return LOBPCG_CONSTANTS::eig_success;

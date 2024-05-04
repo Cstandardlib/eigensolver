@@ -9,6 +9,8 @@
 #define DEBUG_LOBPCG
 // #define DEBUG_EIGENSOLVER
 // #define DEBUG_ORTHO
+// #define DEBUG_COEFF
+// #define DEBUG_UPDATE
 
 const double ASSERT_EPSILON = 1E-10;
 
