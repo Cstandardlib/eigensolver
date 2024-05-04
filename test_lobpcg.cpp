@@ -59,7 +59,7 @@ void test_a1_9() {
     Eigen::MatrixXd evec(n, n_max_subspace);
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
-        _diag_matvec,/*_diag_matvec*//*a1vec*/
+        a1vec,/*_diag_matvec*//*a1vec*/
         _no_matvec,
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);

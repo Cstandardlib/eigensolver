@@ -494,7 +494,7 @@ x, ax is new[k+1]
     // p(n, n_active) = x(n, n_working_space) * coeff_p(n_working_space, n_active)
     p = v.leftCols(n_working_space) * coeff_p;
     // ap = v.leftCols(n_working_space) * coeff_p;
-// !!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!! av.leftCols, not v!!!!!
     ap = av.leftCols(n_working_space) * coeff_p;
 /*???
 how to maintain bv
