@@ -52,6 +52,10 @@ int lobpcg_solve(
 ){
     /* ! note that eig and evec should be allocated n_max_subspace and (n,n_max_subspace),
         not n_eigenpairs and (n,n_eigenpairs) */
+
+    // 设置输出格式，这里设置浮点数的精度为5位小数
+    Eigen::IOFormat fmt(5);
+    // Eigen::IOFormat fmt(5, Eigen::DontAlignCols, ", ", ";\n", "", "", "[", "]");
     
 // --- 0. allocate and initialize ---
     /* 0.1 allocate memory for expansion space, and corresponding Matrix-Vector results and residuals
@@ -119,8 +123,19 @@ int lobpcg_solve(
     /* 1.0 check for guess */
     /* check for initial guess. If not set(all zeros), generate a random
         guess from values in Uniform[0,1), and then orthogonalize */
+    evec << -0.045008846777,-0.012487056830, 0.451774729742,
+            -0.595457985511,-0.302271780449, 0.262108946955,
+            -0.683658739782,-0.026606629965,-0.547438361389,
+            -0.214624268522,-0.097081891179, 0.451904306374,
+            -0.326352098345, 0.603950319551, 0.108625784707,
+            -0.115209128264, 0.356526801138, 0.228854930509,
+            0.075833974684, 0.399936355871,-0.300634194996,
+            0.045339444223,-0.459789809603,-0.236122012805,
+            -0.048640002418,-0.187403125974, 0.113945458005;
     check_init_guess(n, n_max_subspace, evec); // now evec contains orthogonal initial guess
-
+#ifdef DEBUG_LOBPCG
+std::cout << "initial guess = \n" << evec << std::endl;
+#endif
     /* if solving generalized problem, compute bvec and do b-ortho */
     if(solving_generalized) {
         bvec(n, n_max_subspace, evec, bx);      // bx <- b*evec
@@ -154,21 +169,22 @@ if(solving_generalized){
 
     tp_1 = get_current_time();
     /* A_reduced u = \lambda u */
-
+#ifdef DEBUG_LOBPCG
+std::cout << "first round A_reduced = \n" << A_reduced << std::endl;
+#endif
     eig_flag = selfadjoint_eigensolver(A_reduced, eig_reduced, n_max_subspace); // V=[X], use(n, n_max_subspace) of (n, 3*n_max_subspace)
     if(eig_flag == LOBPCG_CONSTANTS::eig_fail){
         std::cerr << "eigensolver failed in first round" << std::endl;
         return LOBPCG_CONSTANTS::fail;
     }
+#ifdef DEBUG_LOBPCG
+std::cout << "first round A_reduced diag = \n" << A_reduced << std::endl;
+#endif
     /* now A_reduced(n_max_subspace, n_max_subspace) contains eigenvectors and eig_reduced contains eigenvalues */
     tp_2 = get_current_time();
     t_solveRR += tp_2 - tp_1;
     eig = eig_reduced.head(n_max_subspace);
-#ifdef DEBUG_LOBPCG
-    // print first round eig and eigvec
-    std::cout << "first round eig = \n" << eig << std::endl;
-    std::cout << "first round eigvec = \n" << A_reduced << std::endl;
-#endif
+
     /* 1.2 compute the Ritz vectors, X, AX and if required, BX */
     /* update new guess X_1 = X_0 u, update corresponding V[X] left n_max_subspace columns */
     /* x <- x * A_reduced*/
@@ -254,7 +270,7 @@ for(int iter = 0; iter < max_iter; ++iter){
 
     /* --- Rayleigh-Ritz --- */
 #ifdef DEBUG_LOBPCG
-    std::cout << "----- starts Loop #" << iter << " -----" << std::endl;
+    std::cout << "\n\n----- starts Loop #" << iter << " -----" << std::endl;
 #endif
     /* 2.1 matrix-blockvector multiplication, calculate aw = a*w */
     tp_1 = get_current_time(); // avec
@@ -301,7 +317,7 @@ for(int iter = 0; iter < max_iter; ++iter){
     A_reduced = v.leftCols(n_working_space).transpose() * av.leftCols(n_working_space);
 
 #ifdef DEBUG_LOBPCG
-    std::cout << "A_reduced = \n" << A_reduced << std::endl;
+    std::cout << "A_reduced before = \n" << A_reduced << std::endl;
 #endif
     tp_1 = get_current_time(); // t_solveRR
     eig_flag = selfadjoint_eigensolver(A_reduced, eig_reduced , n_working_space);
@@ -313,7 +329,7 @@ for(int iter = 0; iter < max_iter; ++iter){
     t_solveRR += tp_2 - tp_1;
     eig = eig_reduced.head(n_max_subspace);
 #ifdef DEBUG_LOBPCG
-    std::cout << "A_reduced = \n" << A_reduced << std::endl;
+    std::cout << "A_reduced after = \n" << A_reduced << std::endl;
 #endif
     /* check the eigenpairs */
 
@@ -424,14 +440,12 @@ x, ax is new[k+1]
         by computing the coefficients u_p and then orthonalizing to u_x */
     /* [x p w]*/
     /* coefficients of p can be computed as follows:
-        !!! notice that
-        !!! we only deal with active part of X, and thus W and P
-        !!! of size(n, n_active)
+        !!! notice that we only deal with active part of X, and thus W and P of size(n, n_active)
         0. we get coefficients from A_reduced(n_working_space, n_working_space)
         A_reduced [ c_x
                     c_p
                     c_w ]
-        1. x^{k+1} = x^k * c_x + w^k * c_w + p^k * c_p
+        1. x^{k+1} = x^k * c_x + p^k * c_p + w^k * c_w
         2. p^k = x^{k+1} - x^k = (x^k - I) * c_x + w^k * c_w + p^k * c_p
         3. size of p: (n, n_active)
         4. we get active x^k here from x(:, n_max_subspace-n_active to n_max_subspace-1)
@@ -451,21 +465,26 @@ x, ax is new[k+1]
     
     
     Eigen::MatrixXd coeff_p = coeff.middleCols(index_x_active,n_active);
+    // for(int i=0; i<n_active; ++i){coeff_p(n_max_subspace-n_active+i, i) -= 1;}
     auto c_active = coeff_p.middleRows(index_x_active, n_active);
 #ifdef DEBUG_LOBPCG
-    // std::cout << "coeff = \n" << coeff << std::endl;
-    // std::cout << "coeff_p = \n" << coeff_p << std::endl;
+    std::cout << "coeff = \n" << coeff << std::endl;
+    std::cout << "coeff_p = \n" << coeff_p << std::endl;
     // std::cout << "c_active = \n" << c_active << std::endl;
 #endif
     c_active -= Eigen::MatrixXd::Identity(n_active, n_active);
 #ifdef DEBUG_LOBPCG
     // std::cout << "c_active = \n" << c_active << std::endl;
+    std::cout << "coeff_p-I = \n" << coeff_p << std::endl;
 #endif
     // ortho coeff p(n_working_space, n_active) against coeff x(n_working_space, n_max_subspace)
     ortho_against_y(n_working_space, n_max_subspace, n_active, coeff_p, coeff);
 #ifdef DEBUG_LOBPCG
     // std::cout << "coeff = \n" << coeff << std::endl;
-    // std::cout << "coeff_p = \n" << coeff_p << std::endl;
+    std::cout << "coeff = \n" << coeff << std::endl;
+    std::cout << "coeff_p-ortho = \n" << coeff_p << std::endl;
+    std::cout << "coeff_p-ortho overlap u_p'u_p = \n" << coeff_p.transpose() * coeff_p << std::endl;
+    std::cout << "coeff_p-ortho overlap u_x'u_p = \n" << coeff.transpose() * coeff_p << std::endl;
 #endif
     // -- end of computing the coefficients of p
     /* p(n, n_active) = v(n, n_working_space) * coeff_p(n_working_space, n_active)
@@ -477,8 +496,12 @@ x, ax is new[k+1]
 #endif
     // iter#0, v = [x w], n_working_space = 2*n_max_subspace
     // else  v = [x p w], n_working_space = n_max_subspace + 2*n_active
+    // p(n, n_active) = x(n, n_working_space) * coeff_p(n_working_space, n_active)
     p = v.leftCols(n_working_space) * coeff_p;
     ap = v.leftCols(n_working_space) * coeff_p;
+/*???
+how to maintain bv
+*/    
     if(solving_generalized) bp = v.leftCols(n_working_space) * coeff_p;
     /* now that we have new p, ap and bp, we shall put them in v */
     /* v(n, n_working_space) [x(n, n_max_subspace) p(n, n_active) w(n, n_active)]*/
@@ -488,9 +511,11 @@ x, ax is new[k+1]
     /* update x in v[x p w] */
     v.leftCols(n_max_subspace) = x;
     av.leftCols(n_max_subspace) = ax;
-        // p = v * coeff_p;
-        // ap = v * coeff_p;
-        // if(solving_generalized) bp = v * coeff_p;
+#ifdef DEBUG_LOBPCG
+    std::cout << "x, p already updated, w to be done" << std::endl;
+    std::cout << "updated v[x p w] = \n" << v << std::endl;
+    std::cout << "updated av[x p w] = \n" << av << std::endl;
+#endif
 
     // -- now p, ap, bp contains new values of step k+1
     
@@ -529,7 +554,9 @@ x, ax is new[k+1]
     /* w */
     
     v.middleCols(index_w, n_active) = w;
-    av.middleCols(index_w, n_active) = aw;
+    // av.middleCols(index_w, n_active) = aw;
+
+    std::cout << "updated v[x p w_new] = \n" << v << std::endl;
 
 } // end -  main loop for
 

@@ -9,7 +9,7 @@
 // identity matrix-vector product
 void _no_matvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& still_vecs){
     // do nothing but copy, still_vecs = I*vesc
-    still_vecs = vecs;
+    still_vecs.topLeftCorner(n,m) = vecs.topLeftCorner(n,m);
 }
 
 void _diag_matvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& after_vecs){

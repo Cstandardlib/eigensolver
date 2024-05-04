@@ -25,6 +25,7 @@ void check_init_guess(int n, int m, Eigen::MatrixXd& evec) {
 //     std::cout << "-- start check_init_guess --" << std::endl;
 // #endif
     if (std::abs(enorm) < LOBPCG_CONSTANTS::tol_zero) {
+        std::cout << "zero guess, init one and orthonormalize it." << std::endl;
         // if evec is all zero(which means no initial guess is provided by user), fill it with random values in U[0,1)
         std::default_random_engine engine;
         std::uniform_real_distribution<double> dist(0.0, 1.0);
@@ -36,9 +37,16 @@ void check_init_guess(int n, int m, Eigen::MatrixXd& evec) {
         Eigen::MatrixXd overlap = evec.transpose() * evec;
         double diag_norm = overlap.diagonal().array().square().sum();   // square sum of overlap diagonal
         double out_norm = (overlap.array().square()).sum() - diag_norm; // square sum of non-diagonal elements
-        
+#ifdef DEBUG_ORTHO
+        std::cout << "overlap of guess is: " << evec.transpose() * evec << std::endl;
+        std::cout << "diag_norm: " << diag_norm/m << std::endl;
+        std::cout << "out_norm: " << out_norm << std::endl;
+#endif
         // 检查对角线元素是否为1，非对角线元素是否为0
         if (std::abs(diag_norm - m) > 1e-10 || std::abs(out_norm) > 1e-10) {
+        // if(!overlap.isApprox(Eigen::MatrixXd::Identity(m, m), 1e-4)){
+            
+            std::cout << "guess not orthogonal, do ortho" << std::endl;
             // 如果不正交，进行正交化处理
             ortho(n, m, evec);
         }
@@ -104,8 +112,10 @@ int selfadjoint_eigensolver(Eigen::MatrixXd &A_to_be_eigenvecs, Eigen::VectorXd 
         // A_to_be_eigenvecs.topLeftCorner(n,n) = eigensolver.eigenvectors();
         A_to_be_eigenvecs = eigensolver.eigenvectors();
 #ifdef DEBUG_EIGENSOLVER
-        std::cout << "The eigenvalues are:\n" << eig << std::endl;
-        // std::cout << "The eigenvectors are:\n" << A_to_be_eigenvecs << std::endl;
+// 设置输出格式，这里设置浮点数的精度为5位小数
+    // Eigen::IOFormat fmt(5);
+        std::cout << "The eigenvalues are:\n" << eig.transpose() << std::endl;
+        std::cout << "The eigenvectors are:\n" << A_to_be_eigenvecs << std::endl;
 #endif
     } else {
         std::cerr << "Eigen decomposition failed." << std::endl;
