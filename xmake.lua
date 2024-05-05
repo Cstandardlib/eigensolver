@@ -9,6 +9,8 @@ target("main")
     -- add sparse matrix files to build directories
     before_build(function (target)
         -- os.cp("matrix/*", "$(buildir)")
+        print("making build directory: ./build")
+        os.mkdir("build")
         print("Copying sparse matrix files to build directory")
         os.cp("matrix/sparseA.mtx", "$(buildir)")
         os.cp("matrix/a1.mtx", "$(buildir)")
