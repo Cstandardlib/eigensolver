@@ -19,7 +19,7 @@ opensource/
 *.tmp
 *.bak
 *.swp
-./*.txt
+*.txt
 tests/*.txt
 
 # Ignore IDE-specific files

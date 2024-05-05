@@ -11,6 +11,7 @@ target("main")
         -- os.cp("matrix/*", "$(buildir)")
         os.cp("matrix/sparseA.mtx", "$(buildir)")
         os.cp("matrix/a1.mtx", "$(buildir)")
+        os.cp("matrix/b1.mtx", "$(buildir)")
      end)
 
     -- Add the test files
@@ -45,6 +46,7 @@ target("test")
         -- os.cp("matrix/*", "$(buildir)")
         os.cp("matrix/sparseA.mtx", "$(buildir)")
         os.cp("matrix/a1.mtx", "$(buildir)")
+        os.cp("matrix/b1.mtx", "$(buildir)")
      end)
 
     -- Add the test files

@@ -154,15 +154,15 @@ void b_ortho(int n, int m, Eigen::MatrixXd& u, Eigen::MatrixXd& bu) {
         if (llt.info() == Eigen::Success) {
             // 计算u * L^-T 和 bu * L^-T
             Eigen::MatrixXd Lt = llt.matrixL().transpose();
-            std::cout << "L^T = \n" << Lt << std::endl;
+            // std::cout << "L^T = \n" << Lt << std::endl;
             Lt = Lt.inverse();
-            std::cout << "L^-T = \n" << Lt << std::endl;
-            std::cout << "u = \n" << u << std::endl;
-            std::cout << "bu = \n" << bu << std::endl;
+            // std::cout << "L^-T = \n" << Lt << std::endl;
+            // std::cout << "u = \n" << u << std::endl;
+            // std::cout << "bu = \n" << bu << std::endl;
             u = u * Lt;
             bu = bu * Lt;
-            std::cout << "u = \n" << u << std::endl;
-            std::cout << "bu = \n" << bu << std::endl;
+            // std::cout << "u = \n" << u << std::endl;
+            // std::cout << "bu = \n" << bu << std::endl;
         } else {
             std::cerr << "Cholesky decomposition failed." << std::endl;
         }

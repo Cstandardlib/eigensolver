@@ -59,8 +59,7 @@ int lobpcg_solve(
     
 // --- 0. allocate and initialize ---
     /* 0.1 allocate memory for expansion space, and corresponding Matrix-Vector results and residuals
-       i.e. X(n, n_max_subspace), P(n, n_active), W(n, n_active)
-       if using one unified block of memory, it will need V(n, 3*n_max_subspace)
+       X(n, n_max_subspace), P(n, n_active), W(n, n_active)
     2 ways of doing x, w, p
        1. we can construct v, av, A_reduced = V'AV only when needed by Rayleigh-Ritz instead of stroring x, w, p together in v
        2. we can use v as [x p w] and access different parts of v as x, p, w
@@ -75,8 +74,8 @@ int lobpcg_solve(
     Eigen::MatrixXd av(n, size_space);
     /* since we only use bx, bp for b-orthogonalization of w(in need of [x p], [wx wp])
         we will not store bv but to get b[x p] when needed(in 2.7) instead */
-    // Eigen::MatrixXd bv(n, size_space);
-    v.setZero(); av.setZero(); // bv.setZero();
+    Eigen::MatrixXd bv(n, size_space);
+    v.setZero(); av.setZero(); bv.setZero();
  
     /* 0.2 allocate memory for temporary copies of X, AX, BX */
     Eigen::MatrixXd x(n, n_max_subspace);       // X(n, n_max_subspace)
@@ -142,7 +141,7 @@ std::cout << "initial guess = \n" << evec << std::endl;
         b_ortho(n, n_max_subspace, evec, bx);   // b-ortho bx against evec
 #ifdef DEBUG_LOBPCG
     std::cout << "init bx = \n" << bx << std::endl;
-    std::cout << "guess (bx)'b(bx) = \n" << bx.transpose() * bx << std::endl;
+    std::cout << "guess (x)'(bx) = \n" << x.transpose() * bx << std::endl;
 #endif   
     }
 
@@ -192,6 +191,9 @@ std::cout << "first round A_reduced' * A_reduced = \n" << A_reduced.transpose()*
     // av.leftCols(n_max_subspace) = av.leftCols(n_max_subspace) * A_reduced.topLeftCorner(n_max_subspace,n_max_subspace);
     /* bx <- bx *A_reduced*/
     if(solving_generalized){
+#ifdef DEBUG_GENERALIZED
+        std::cout << "doing bx = bx * A_reduced" << std::endl;
+#endif
         bx = bx * A_reduced.topLeftCorner(n_max_subspace,n_max_subspace);
         // bv.leftCols(n_max_subspace) = bv.leftCols(n_max_subspace) * A_reduced.topLeftCorner(n_max_subspace,n_max_subspace);
     }
@@ -211,6 +213,9 @@ std::cout << "first round A_reduced' * A_reduced = \n" << A_reduced.transpose()*
     /* 1.5 orthogonalize W; and then orthonormalize it */
     tp_1 = get_current_time(); // t_ortho
     if(solving_generalized) { /* compute and b-orthogonalize bw */
+#ifdef DEBUG_GENERALIZED
+        std::cout << "1.5 compute and b-orthogonalize bw" << std::endl;
+#endif
         b_ortho_against_y(n, n_max_subspace, n_max_subspace, w, x, bx);
         bvec(n, n_max_subspace, w, bw);     // bw = b*w
         b_ortho(n, n_max_subspace, w, bw);  // b-orthogonalize w and bw
@@ -227,6 +232,11 @@ std::cout << "first round A_reduced' * A_reduced = \n" << A_reduced.transpose()*
     av.leftCols(n_max_subspace) = ax;
     int index_w = n_max_subspace;
     v.middleCols(index_w, n_max_subspace) = w; // now v = [X w], w of width n_max_subspace
+    if(solving_generalized){
+        bv.leftCols(n_max_subspace) = bx;
+        bv.middleCols(index_w, n_max_subspace) =bw;
+    }
+    
 
 // --- 2. main loop ---
 #ifdef DEBUG_LOBPCG
@@ -281,6 +291,7 @@ for(int iter = 0; iter < max_iter; ++iter){
     //                              ^ index_w = n_max_subspace + n_active
 
 #ifdef DEBUG_LOBPCG
+    std::cout << "2.2 construct the reduced matrix and diagonalization" << std::endl;
     // std::cout << "v and av for constructing reduced matrix: \n";
     // std::cout << "v = \n" << v << std::endl;
     // std::cout << "av = \n" << av << std::endl;
@@ -329,17 +340,20 @@ for(int iter = 0; iter < max_iter; ++iter){
     // x = v.leftCols(n_working_space) * A_reduced.topLeftCorner(n_working_space, n_max_subspace);
     // ax = av.leftCols(n_working_space) * A_reduced.topLeftCorner(n_working_space, n_max_subspace);
     if(solving_generalized){
+#ifdef DEBUG_GENERALIZED
+        std::cout << "2.3 doing bx = bx * A_reduced" << std::endl;
+#endif
         // bx = v.leftCols(n_working_space) * A_reduced.topLeftCorner(n_working_space, n_max_subspace);
 // ???
 // how to deal with bx = bv(n, n_working_space) * A_reduced(n_working_space, n_max_subspace)
-        bx = bx * A_reduced.leftCols(n_max_subspace);
+        bx = bv.leftCols(n_working_space) * A_reduced.leftCols(n_max_subspace);
     }
 #ifdef DEBUG_LOBPCG
-// std::cout << "updated A_reduced = \n" << A_reduced << std::endl;
+std::cout << "updated A_reduced = \n" << A_reduced << std::endl;
 // std::cout << "updated x = \n" << x << std::endl;
 // std::cout << "updated ax = \n" << ax << std::endl;
     // std::cout << "--!!-- updated eig = \n" << eig << std::endl;
-    // std::cout << "--- starts compute residuals & norms ---" << std::endl;
+    std::cout << "--- starts compute residuals & norms ---" << std::endl;
 #endif
     /* 2.4 compute residuals & norms */
 /*???
@@ -499,7 +513,12 @@ x, ax is new[k+1]
 /*???
 how to maintain bv
 */    
-    if(solving_generalized) bp = v.leftCols(n_working_space) * coeff_p;
+    if(solving_generalized){
+#ifdef DEBUG_GENERALIZED
+        std::cout << "updating bp = bv * A_reduced" << std::endl;
+#endif
+        bp = bv.leftCols(n_working_space) * coeff_p;
+    }
     /* now that we have new p, ap and bp, we shall put them in v */
     /* v(n, n_working_space) [x(n, n_max_subspace) p(n, n_active) w(n, n_active)]*/
     /* update p in v[x p w] */
@@ -508,6 +527,10 @@ how to maintain bv
     /* update x in v[x p w] */
     v.leftCols(n_max_subspace) = x;
     av.leftCols(n_max_subspace) = ax;
+    if(solving_generalized){
+        bv.middleCols(n_max_subspace, n_active) = bp;
+        bv.leftCols(n_max_subspace) = bx;
+    }
 #ifdef DEBUG_UPDATE
     std::cout << "x, p already updated, w to be done" << std::endl;
     std::cout << "updated v[x p w] = \n" << v << std::endl;
@@ -530,12 +553,13 @@ how to maintain bv
     tp_1 = get_current_time();
     if(solving_generalized){ // get orthogonalized w and bw
         // const Eigen::MatrixXd b_xp = bv.leftCols(n_max_subspace + n_active);
-        Eigen::MatrixXd b_xp(n, n_max_subspace + n_active);
-        // assert(bx.rows() == bp.rows());
-        b_xp << bx, bp;
+        // Eigen::MatrixXd b_xp(n, n_max_subspace + n_active);
+        // b_xp << bx, bp;
+        Eigen::MatrixXd b_xp = bv.leftCols(n_max_subspace + n_active);
         b_ortho_against_y(n, n_max_subspace + n_active, n_active, w, xp, b_xp); // b-ortho w to [x p]
         bvec(n, n_active, w, bw); // bw = b*w
         b_ortho(n, n_active, w, bw); // b-ortho
+        bv.middleCols(index_w, n_active) = bw;
     } else {
         ortho_against_y(n, n_max_subspace+n_active, n_active, w, xp);// ortho w to [x p]
     }

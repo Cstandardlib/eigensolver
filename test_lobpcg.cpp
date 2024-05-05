@@ -77,6 +77,7 @@ void test_a1_9() {
     else std::cout << "ok! converged "<< std::endl;
     std::cout << "------- final -------" << std::endl;
     std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
+    std::cout << "LOBPCG eigenvectors = \n"<< evec.leftCols(n_eigenpairs) << std::endl;
     // std::cout << "eigenvectors = \n"<< evec << std::endl;
 
     // std::ifstream f("../../../a1.mtx");
@@ -107,7 +108,7 @@ void test_large_1000(){
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         avec,/*_diag_matvec*//*a1vec*/
-        mprec,/*_no_matvec*/
+        _no_matvec,/*_no_matvec*/ /*mprec*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
@@ -133,7 +134,7 @@ void test_gen_9() {
     int ok = lobpcg_solve(
         a1vec,/*_diag_matvec*//*a1vec*/
         _no_matvec,/*_no_matvec*/ /*mprec*/
-        bvec/*bvec*/,
+        b1vec,/*bvec*//*b1vec*/
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
     if(ok != LOBPCG_CONSTANTS::success) std::cerr<< "not ok! "<< std::endl;
@@ -146,7 +147,7 @@ void test_gen_1000(){
     int n = 1000;
     int n_eigenpairs = 20;//5;
     int n_max_subspace = std::min(2*n_eigenpairs, n_eigenpairs + 5);
-    bool solving_generalized = false;
+    bool solving_generalized = true;
     int max_iter = 1000;
     double tol = 1e-6;
     double shift = 0.0;
@@ -166,11 +167,12 @@ void test_gen_1000(){
     std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
 }
 
+void real_Si5H12(){}
 
 int main(){
     // test_sparse_diag_A();
     // test_a1_9();
-    test_large_1000();
-    // test_gen_9();
+    // test_large_1000();
+    test_gen_9();
     return 0;
 }

@@ -5,20 +5,20 @@
 
 
 void sparseAvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
+
 // a1.mtx 9*9 diag
 void a1vec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
+void b1vec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs);
 
 // template <typename Derived>
 void avec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
-
-// template <typename Derived>
 void bvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs);
-
 // template <typename Derived>
 void precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs);
-
 // preconditioner for avec
 void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px);
+
+void avec_Si5H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
 
 // template <typename Derived>
 // void avec(int n, int m, Eigen::DenseBase<Derived>& vecs, Eigen::DenseBase<Derived>& avecs){

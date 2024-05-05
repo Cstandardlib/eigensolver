@@ -41,10 +41,6 @@ void avec_diag_n(int n, int m, Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
 
 // a1.mtx 9*9 diag
 void a1vec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
-#ifdef DEBUG_LOBPCG
-    std::cout << "-- starts a1vec --" << std::endl;
-    std::cout << "size of vecs(n, m) = " << n << ", " << m << std::endl;
-#endif
     std::ifstream f("../../../a1.mtx");
     if(!f.is_open()) {std::cerr << "failed to open file" << std::endl; return;}
     Eigen::SparseMatrix<double> mat;
@@ -58,10 +54,28 @@ void a1vec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
     if(avecs.rows() != n || avecs.cols() != m){
         std::cerr << "avecs must be of size (n,m)"; return;
     }
-    // std::cout << "A-vec a1 = \n" << mat << std::endl;
-    // std::cout << "A-vec vecs = \n"<< vecs << std::endl;
     avecs = mat * vecs;
-    // std::cout << "A-vec avecs = \n"<< avecs << std::endl;
+}
+// b1.mtx 9*9 diag
+void b1vec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs){
+#ifdef DEBUG_LOBPCG
+    std::cout << "-- starts b1vec --" << std::endl;
+    std::cout << "size of vecs(n, m) = " << n << ", " << m << std::endl;
+#endif
+    std::ifstream f("../../../b1.mtx");
+    if(!f.is_open()) {std::cerr << "failed to open file" << std::endl; return;}
+    Eigen::SparseMatrix<double> mat;
+    fast_matrix_market::read_matrix_market_eigen(f, mat); // std::cout << mat << std::endl;
+    if(mat.rows() != n || mat.cols() != n){
+        std::cerr << "input sparse matrix must be of size (n,n) = "<<"("<<n<<", "<<n<<")"; return;
+    }
+    if(vecs.rows() != n || vecs.cols() != m){
+        std::cerr << "vecs must be of size (n,m)"; return;
+    }
+    if(bvecs.rows() != n || bvecs.cols() != m){
+        std::cerr << "bvecs must be of size (n,m)"; return;
+    }
+    bvecs = mat * vecs;
 #ifdef DEBUG_LOBPCG
     std::cout << "-- end a1vec --" << std::endl;
 #endif
@@ -109,15 +123,7 @@ void avec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
     if(avecs.rows() != n || avecs.cols() != m){
         std::cerr << "bvecs must be of size (n,m)"; return;
     }
-    // Assume 'a' is a global variable or class member matrix that is already defined and initialized.
-    // static Eigen::MatrixXd a(n, n);
-    // for (int i = 0; i < n; ++i) {
-    //     a(i, i) = static_cast<double>(i + 1) + 1.0;
-    //     for (int j = 0; j < i; ++j) {
-    //         a(j,i) = 1.0 / static_cast<double>(i + j);
-    //         a(i,j) = a(j,i);
-    //     }
-    // }
+
     if (a.rows() == 0) {
         initializeMatrix(n);
     }
@@ -131,6 +137,7 @@ void avec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
 // b = diag(2,2, ...)
 void bvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs){
     // check vecs and bvecs are of size(n,m)
+    std::cout << "bvec: n, m = " << n << ", " << m << std::endl;
     if(vecs.rows() != n || vecs.cols() != m){
         std::cerr << "vecs must be of size (n,m)"; return;
     }
@@ -152,6 +159,8 @@ void precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs){
     tvecs = vecs;
 }
 
+
+
 void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px) {
     // double fac, 
     // 检查输入矩阵x的维度是否正确
@@ -160,15 +169,6 @@ void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px) {
     // 检查输出矩阵px是否已经正确初始化
     assert(px.rows() == n && px.cols() == m);
 
-    // 对每一列向量进行操作
-    // static Eigen::MatrixXd a(n, n);
-    // for (int i = 0; i < n; ++i) {
-    //     a(i, i) = static_cast<double>(i + 1) + 1.0;
-    //     for (int j = 0; j < i; ++j) {
-    //         a(j,i) = 1.0 / static_cast<double>(i + j);
-    //         a(i,j) = a(j,i);
-    //     }
-    // }
     if (a.rows() == 0) {
         initializeMatrix(n);
     }
@@ -187,4 +187,9 @@ void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px) {
             // }
         }
     }
+}
+
+
+void avec_Si5H12(int n, int m, const Eigen::MatrixXd &vecs, Eigen::MatrixXd &avecs)
+{
 }
