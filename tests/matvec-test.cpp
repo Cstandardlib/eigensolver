@@ -1,6 +1,7 @@
 #include "matvec.h"
 #include <assert.h>
 #include <iostream>
+
 void test_avec(){
     // Test case 1: n = 4, m = 2
     int n=4;
@@ -73,7 +74,27 @@ void test_bvec(){
     // std::cout << "b * vecs1 =\n" << bvecs1 << std::endl;
 }
 
+void test_call_avec(){
+    int n=9;
+    int m=2;
+    Eigen::MatrixXd vecs(n, m); vecs.setConstant(3);
+    Eigen::MatrixXd avecs(n, m);
+    avec(n, m, vecs, avecs);
+    std::cout << "avecs = \n" << avecs << std::endl;
+    Eigen::MatrixXd a(n, n);
+    for (int i = 0; i < n; ++i) {
+        a(i, i) = static_cast<double>(i + 1) + 1.0;
+        for (int j = 0; j < i; ++j) {
+            a(j,i) = 1.0 / static_cast<double>(i+1 + j+1);
+            a(i,j) = a(j,i);
+        }
+    }
+    std::cout << "a = \n" << a << std::endl;
+    std::cout << "a*vecs = \n" << a*vecs << std::endl;
+}
+
 int main(){
-    test_avec();
+    // test_avec();
     // test_bvec();
+    test_call_avec();
 }

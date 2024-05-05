@@ -7,6 +7,25 @@
 #include <Eigen/Sparse>
 #include <fast_matrix_market/app/Eigen.hpp>
 
+// namespace dense_a{}
+static Eigen::MatrixXd a;
+void initializeMatrix(int n) {
+    std::cout << "initializing a..." << std::endl;
+    a.resize(n, n);
+    for (int i = 0; i < n; ++i) {
+        a(i, i) = static_cast<double>(i + 1) + 1.0;
+        for (int j = 0; j < i; ++j) {
+            a(j,i) = 1.0 / static_cast<double>(i+1 + j+1);
+            a(i,j) = a(j,i);
+        }
+    }
+    std::cout << "a size = " << a.rows() << ", " << a.cols() << std::endl;
+#ifdef DEBUG_MATVEC
+    std::cout << "a initialized = \n" << a << std::endl;
+#endif
+}
+
+
 // test avec function, A*vecs(n,m) -> avecs(n,m)
 // incremental diagonal elements from 1 to n
 void avec_diag_n(int n, int m, Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
@@ -91,13 +110,16 @@ void avec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
         std::cerr << "bvecs must be of size (n,m)"; return;
     }
     // Assume 'a' is a global variable or class member matrix that is already defined and initialized.
-    static Eigen::MatrixXd a(n, n);
-    for (int i = 0; i < n; ++i) {
-        a(i, i) = static_cast<double>(i + 1) + 1.0;
-        for (int j = 0; j < i; ++j) {
-            a(j,i) = 1.0 / static_cast<double>(i + j);
-            a(i,j) = a(j,i);
-        }
+    // static Eigen::MatrixXd a(n, n);
+    // for (int i = 0; i < n; ++i) {
+    //     a(i, i) = static_cast<double>(i + 1) + 1.0;
+    //     for (int j = 0; j < i; ++j) {
+    //         a(j,i) = 1.0 / static_cast<double>(i + j);
+    //         a(i,j) = a(j,i);
+    //     }
+    // }
+    if (a.rows() == 0) {
+        initializeMatrix(n);
     }
 
     // Perform matrix-vector multiplication for each column of x
@@ -106,7 +128,7 @@ void avec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
     }
 }
 
-
+// b = diag(2,2, ...)
 void bvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs){
     // check vecs and bvecs are of size(n,m)
     if(vecs.rows() != n || vecs.cols() != m){
@@ -115,7 +137,7 @@ void bvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs){
     if(bvecs.rows() != n || bvecs.cols() != m){
         std::cerr << "bvecs must be of size (n,m)"; return;
     }
-    bvecs = vecs;
+    bvecs = 2*vecs;
 }
 
 // identity preconditioner
@@ -128,4 +150,41 @@ void precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs){
         std::cerr << "tvecs must be of size (n,m)"; return;
     }
     tvecs = vecs;
+}
+
+void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px) {
+    // double fac, 
+    // 检查输入矩阵x的维度是否正确
+    assert(x.rows() == n && x.cols() == m);
+    
+    // 检查输出矩阵px是否已经正确初始化
+    assert(px.rows() == n && px.cols() == m);
+
+    // 对每一列向量进行操作
+    // static Eigen::MatrixXd a(n, n);
+    // for (int i = 0; i < n; ++i) {
+    //     a(i, i) = static_cast<double>(i + 1) + 1.0;
+    //     for (int j = 0; j < i; ++j) {
+    //         a(j,i) = 1.0 / static_cast<double>(i + j);
+    //         a(i,j) = a(j,i);
+    //     }
+    // }
+    if (a.rows() == 0) {
+        initializeMatrix(n);
+    }
+    for (int icol = 0; icol < m; ++icol) {
+        for (int i = 0; i < n; ++i) {
+            // 检查分母是否为0，避免除以0的错误
+            // if (abs(a(i, i) + fac) > 1.0e-5) {
+            if (abs(a(i, i)) > 1.0e-5) {
+                px(i, icol) = x(i, icol) / (a(i, i));
+            }
+            // else {
+                // 如果分母接近0，可以设置一个错误值或者抛出异常
+                // 这里简单地设置为0，实际情况可能需要更复杂的错误处理
+                // px(i, icol) = 0.0;
+                // do nothing
+            // }
+        }
+    }
 }

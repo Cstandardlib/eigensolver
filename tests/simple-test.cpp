@@ -35,13 +35,16 @@ int main(){
     // std::cout << std::sqrt(n) << std::endl;
     // std::cout << std::sqrt(static_cast<double>(n)) << std::endl;
 
-    const int ACTIVE = 1;
-    int n_max_subspace = 10;
-    Eigen::VectorXi activeMask(n_max_subspace); activeMask.setZero();
-    int i=3;
-    activeMask.segment(i+1, n_max_subspace-1-i) = Eigen::VectorXi::Constant(n_max_subspace-1-i, ACTIVE);
-    std::cout<< activeMask.transpose() << std::endl;
-    activeMask.setZero();
-    for(int j=i+1; j<n_max_subspace; ++j) activeMask(j) = ACTIVE;
-    std::cout<< activeMask.transpose() << std::endl;
+    // const int ACTIVE = 1;
+    // int n_max_subspace = 10;
+    // Eigen::VectorXi activeMask(n_max_subspace); activeMask.setZero();
+    // int i=3;
+    // activeMask.segment(i+1, n_max_subspace-1-i) = Eigen::VectorXi::Constant(n_max_subspace-1-i, ACTIVE);
+    // std::cout<< activeMask.transpose() << std::endl;
+    // activeMask.setZero();
+    // for(int j=i+1; j<n_max_subspace; ++j) activeMask(j) = ACTIVE;
+    // std::cout<< activeMask.transpose() << std::endl;
+
+    Eigen::MatrixXd a;
+    std::cout << a.rows() <<"  "<< a.cols() << std::endl;
 }

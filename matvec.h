@@ -17,6 +17,9 @@ void bvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs);
 // template <typename Derived>
 void precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs);
 
+// preconditioner for avec
+void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px);
+
 // template <typename Derived>
 // void avec(int n, int m, Eigen::DenseBase<Derived>& vecs, Eigen::DenseBase<Derived>& avecs){
 // // void avec(int n, int m, Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
