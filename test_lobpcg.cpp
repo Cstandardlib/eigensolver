@@ -270,9 +270,9 @@ void run_sparse_Na5(){
     std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
 }
 
-void real_Si5H12(){
+void run_sparse_Si5H12(){
     int n = 19896;
-    int n_eigenpairs = 1;//5;
+    int n_eigenpairs = 199;//5;
     int n_max_subspace = std::min(2*n_eigenpairs, n_eigenpairs + 5);
     bool solving_generalized = false;
     int max_iter = 1000;
@@ -283,8 +283,8 @@ void real_Si5H12(){
     Eigen::MatrixXd evec(n, n_max_subspace);
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
-        avec_Si5H12,/*_diag_matvec*//*a1vec*/
-        _no_precnd,/*_no_matvec*/ /*mprec*/
+        sparse_avec_Si5H12,/*_diag_matvec*//*a1vec*/
+        sparse_precnd_Si5H12,/*_no_matvec*/ /*mprec*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
@@ -302,7 +302,7 @@ int main(){
     // test_gen_9();
     // run_dense_Si2();
     // run_sparse_Si2();
-    run_sparse_Na5();
-    // real_Si5H12();
+    // run_sparse_Na5();
+    run_sparse_Si5H12();
     return 0;
 }

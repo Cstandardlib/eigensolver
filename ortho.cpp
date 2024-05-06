@@ -60,7 +60,7 @@ void ortho_qr(int n, int m, Eigen::MatrixXd &u)
     u = qr.householderQ() * u;  // now u=Q
 }
 
-
+// void ortho(int n, int m, Eigen::MatrixXd &x)
 void ortho_cho(int n, int m, Eigen::MatrixXd &x)
 {
     // direct approach, using Cholesky
