@@ -6,6 +6,8 @@ target("main")
 
     set_languages("c++17")
 
+    set_optimize("fastest")
+
     -- add sparse matrix files to build directories
     before_build(function (target)
         -- os.cp("matrix/*", "$(buildir)")
@@ -26,6 +28,7 @@ target("main")
     -- Add the source files
     add_files("lobpcg.cpp")
     add_files("matvec.cpp")
+    add_files("sparseMv.cpp")
     add_files("ortho.cpp")
     add_files("utils.cpp")
 
@@ -65,12 +68,12 @@ target("test")
     -- add_files("tests/QRtest.cpp")
     -- add_files("tests/block-test.cpp")
     -- add_files("tests/time-test.cpp")
-    add_files("tests/matvec-test.cpp")
-    -- add_files("tests/sparse-test.cpp")
+    -- add_files("tests/matvec-test.cpp")
+    add_files("tests/sparse-test.cpp")
 
     -- Add the source files
     -- add_files("lobpcg.cpp")
-    add_files("matvec.cpp")
+    -- add_files("matvec.cpp")
     -- add_files("ortho.cpp")
     -- add_files("utils.cpp")
 

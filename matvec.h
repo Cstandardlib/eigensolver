@@ -10,19 +10,20 @@ void sparseAvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avec
 void a1vec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
 void b1vec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs);
 
+// toys
 // template <typename Derived>
 void avec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
 void bvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs);
-// template <typename Derived>
 void precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs);
+
 // preconditioner for avec
-void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px);
+void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px, double shift);
 
 void avec_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
-void precnd_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs);
+void precnd_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift);
 
 void avec_Na5(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
-void precnd_Na5(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs);
+void precnd_Na5(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift);
 
 void avec_Si5H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
 // void precnd_Si5H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs);

@@ -118,7 +118,7 @@ void sparse_demo()
     std::cout << "Result of multiplication:\n" << result << std::endl;
 }
 
-int main(){
+void test_sparsemv(){
     int n = 3;
     int m = 2;
     Eigen::MatrixXd vecs = Eigen::MatrixXd::Ones(n, m);
@@ -128,5 +128,19 @@ int main(){
     avec(n, m, vecs, avecs);
     std::cout <<"doing avecs" << std::endl;
     std::cout << "avecs = \n" << avecs << std::endl;
-    return 0;
+}
+
+int main(){
+    Eigen::SparseMatrix<double> sparseMat(3, 3);
+    sparseMat.insert(0, 0) = 1.0;
+    sparseMat.insert(0, 1) = 1.0; // 位于(0,1)位置的元素
+    sparseMat.insert(1, 2) = 2.0; // 位于(1,2)位置的元素
+    sparseMat.insert(2, 0) = 3.0; // 位于(2,0)位置的元素
+    sparseMat.insert(2, 2) = -1.0;
+    std::cout << "sparseMat = \n"<< sparseMat << std::endl;
+    Eigen::VectorXd diagvec= sparseMat.diagonal(); 
+    std::cout << "at (2,1) lies " << sparseMat.coeff(2, 1) << std::endl;
+    std::cout << "at (1,2) lies " << sparseMat.coeff(1, 2) << std::endl;
+    for(int i=0; i<3; ++i) std::cout << "diag("<<i<<") is " << sparseMat.coeff(i,i) << std::endl;
+    std::cout << diagvec << std::endl;
 }

@@ -1,5 +1,6 @@
 #include "lobpcg.h" // lobpcg_solve
 #include "matvec.h" // avec, bvec, precnd
+#include "sparseMv.h"
 #include "utils.h"  //  selfadjoint_eigensolver
 
 #include <iostream>
@@ -8,6 +9,13 @@
 
 // identity matrix-vector product
 void _no_matvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& still_vecs){
+    // do nothing but copy, still_vecs = I*vesc
+    // print size n,m
+    // std::cout << "_no_matvec is called for size(n,m) = "<<"("<<n<<", "<<m<<")" << std::endl;
+    still_vecs.topLeftCorner(n,m) = vecs.topLeftCorner(n,m);
+}
+
+void _no_precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& still_vecs, double shift){
     // do nothing but copy, still_vecs = I*vesc
     // print size n,m
     // std::cout << "_no_matvec is called for size(n,m) = "<<"("<<n<<", "<<m<<")" << std::endl;
@@ -38,7 +46,7 @@ void test_sparse_diag_A() {
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         sparseAvec,/*_diag_matvec*//*a1vec*/
-        _no_matvec,
+        _no_precnd,
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
     // lobpcg_solve(avec, precnd, bvec, eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, ok, verbose);
@@ -69,7 +77,7 @@ void test_a1_9() {
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         a1vec,/*_diag_matvec*//*a1vec*/
-        _no_matvec,/*_no_matvec*/ /*mprec*/
+        _no_precnd,/*_no_matvec*/ /*mprec*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
@@ -108,7 +116,7 @@ void test_large_1000(){
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         avec,/*_diag_matvec*//*a1vec*/
-        _no_matvec,/*_no_matvec*/ /*mprec*/
+        _no_precnd,/*_no_matvec*/ /*mprec*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
@@ -156,7 +164,7 @@ void test_gen_9() {
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         a1vec,/*_diag_matvec*//*a1vec*/
-        _no_matvec,/*_no_matvec*/ /*mprec*/
+        _no_precnd,/*_no_matvec*/ /*mprec*/
         b1vec,/*bvec*//*b1vec*/
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
@@ -190,7 +198,7 @@ void test_gen_1000(){
     std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
 }
 
-void real_Si2(){
+void run_dense_Si2(){
     int n = 769;
     int n_eigenpairs = 8;//5;
     int n_max_subspace = std::min(2*n_eigenpairs, n_eigenpairs + 5);
@@ -214,7 +222,31 @@ void real_Si2(){
     std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
 }
 
-void real_Na5(){
+void run_sparse_Si2(){
+    int n = 769;
+    int n_eigenpairs = 8;//5;
+    int n_max_subspace = std::min(2*n_eigenpairs, n_eigenpairs + 5);
+    bool solving_generalized = false;
+    int max_iter = 1000;
+    double tol = 1e-6;
+    double shift = 0.0;
+    bool verbose = true;
+    Eigen::VectorXd eig(n_max_subspace);
+    Eigen::MatrixXd evec(n, n_max_subspace);
+    eig.setZero(); evec.setZero();
+    int ok = lobpcg_solve(
+        sparse_avec_Si2,/*_diag_matvec*//*a1vec*/
+        sparse_precnd_Si2,/*_no_matvec*/ /*mprec*/
+        _no_matvec/*bvec*/,
+        eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
+
+    if(ok != LOBPCG_CONSTANTS::success) std::cerr<< "not ok! "<< std::endl;
+    else std::cout << "ok! converged "<< std::endl;
+    std::cout << "------- final -------" << std::endl;
+    std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
+}
+
+void run_sparse_Na5(){
     int n = 5832;
     int n_eigenpairs = 3;//5;
     int n_max_subspace = std::min(2*n_eigenpairs, n_eigenpairs + 5);
@@ -227,8 +259,8 @@ void real_Na5(){
     Eigen::MatrixXd evec(n, n_max_subspace);
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
-        avec_Na5,/*_diag_matvec*//*a1vec*/
-        precnd_Na5,/*_no_matvec*/ /*mprec*/
+        sparse_avec_Na5,/*_diag_matvec*//*a1vec*/
+        sparse_precnd_Na5,/*_no_matvec*/ /*mprec*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
@@ -252,7 +284,7 @@ void real_Si5H12(){
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         avec_Si5H12,/*_diag_matvec*//*a1vec*/
-        _no_matvec,/*_no_matvec*/ /*mprec*/
+        _no_precnd,/*_no_matvec*/ /*mprec*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
@@ -268,8 +300,9 @@ int main(){
     // test_large_1000();
     // test_large_5000();
     // test_gen_9();
-    // real_Si2();
-    real_Na5();
+    // run_dense_Si2();
+    // run_sparse_Si2();
+    run_sparse_Na5();
     // real_Si5H12();
     return 0;
 }

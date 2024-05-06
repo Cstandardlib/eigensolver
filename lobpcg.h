@@ -25,7 +25,7 @@ namespace LOBPCG_CONSTANTS {
 // Declare function prototypes
 int lobpcg_solve(
     void (*avec)(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs),             // AX, external operator for X nxm
-    void (*precnd)(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs),   // TX, external operator for X nxm
+    void (*precnd)(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift),   // TX, external operator for X nxm
     void (*bvec)(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs),             // BX, external operator for X nxm
     Eigen::VectorXd& eig,   // lambdas, should be allocated size n_max_subspace
     Eigen::MatrixXd& evec,  // X, should be allocated size (n,n_max_subspace)

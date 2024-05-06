@@ -37,7 +37,7 @@
  */
 int lobpcg_solve(
     void (*avec)(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs),             // AX, external operator for X nxm
-    void (*precnd)(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs),   // TX, external operator for X nxm
+    void (*precnd)(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift),   // TX, shift-and-invert preconditioner for X nxm
     void (*bvec)(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs),             // BX, external operator for X nxm
     Eigen::VectorXd& eig,   // lambdas, should be allocated size n_max_subspace
     Eigen::MatrixXd& evec,  // X, should be allocated size (n,n_max_subspace)
@@ -209,7 +209,7 @@ std::cout << "first round A_reduced' * A_reduced = \n" << A_reduced.transpose()*
     }
 
     /* 1.4 compute the preconditioned residuals W = TR */
-    precnd(n, n_max_subspace, r, w);   // w = t * r
+    precnd(n, n_max_subspace, r, w, shift - eig(0));   // w = t * r
 
     /* 1.5 orthogonalize W; and then orthonormalize it */
     tp_1 = get_current_time(); // t_ortho
@@ -545,7 +545,7 @@ how to maintain bv
     /* only residuals of active x will be taken into W */
     Eigen::MatrixXd r_active = r.rightCols(n_active);
     w = r_active; // resize w to (n, n_active)
-    precnd(n, n_active, r_active, w); // w(n, n_active) = t * r(n, n_active)
+    precnd(n, n_active, r_active, w, shift - eig(0)); // w(n, n_active) = t * r(n, n_active)
         // eigen will change w size if needed during precnd
 
     /* 2.7.1 orthogonalize W to X, P; and then orthonormalize it */

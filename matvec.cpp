@@ -90,7 +90,6 @@ void sparseAvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avec
     }
 
     Eigen::SparseMatrix<double> mat;
-
     fast_matrix_market::read_matrix_market_eigen(f, mat);
     // std::cout << mat << std::endl;
     if(mat.rows() != n || mat.cols() != n){
@@ -109,10 +108,8 @@ void sparseAvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avec
                     << "size ("<<avecs.rows()<<", "<<avecs.cols()<<") is provided" << std::endl;
         return;
     }
-
     avecs = mat * vecs;
 }
-
 
 
 void avec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
@@ -120,18 +117,10 @@ void avec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
     if(vecs.rows() != n || vecs.cols() != m){
         std::cerr << "vecs must be of size (n,m)"; return;
     }
-    if(avecs.rows() != n || avecs.cols() != m){
-        std::cerr << "bvecs must be of size (n,m)"; return;
-    }
-
-    if (a.rows() == 0) {
-        initializeMatrix(n);
-    }
-
+    if(avecs.rows() != n || avecs.cols() != m){std::cerr << "bvecs must be of size (n,m)"; return;}
+    if (a.rows() == 0) initializeMatrix(n);
     // Perform matrix-vector multiplication for each column of x
-    for (int icol = 0; icol < m; ++icol) {
-        avecs.col(icol) = a * vecs.col(icol);
-    }
+    for (int icol = 0; icol < m; ++icol) avecs.col(icol) = a * vecs.col(icol);
 }
 
 // b = diag(2,2, ...)
@@ -161,7 +150,7 @@ void precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs){
 
 
 
-void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px) {
+void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px, double shift) {
     // double fac, 
     // 检查输入矩阵x的维度是否正确
     assert(x.rows() == n && x.cols() == m);
@@ -176,8 +165,8 @@ void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px) {
         for (int i = 0; i < n; ++i) {
             // 检查分母是否为0，避免除以0的错误
             // if (abs(a(i, i) + fac) > 1.0e-5) {
-            if (abs(a(i, i)) > 1.0e-5) {
-                px(i, icol) = x(i, icol) / (a(i, i));
+            if (abs(a(i, i)+shift) > 1.0e-5) {
+                px(i, icol) = x(i, icol) / (a(i, i)+shift);
             }
             // else {
                 // 如果分母接近0，可以设置一个错误值或者抛出异常
@@ -215,7 +204,7 @@ void avec_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs)
     avecs = denseA_Si2 * vecs;
 }
 
-void precnd_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs){
+void precnd_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift){
     if(denseA_Si2.rows() == 0){
         initializeMatrixSi2();
     }
@@ -223,8 +212,8 @@ void precnd_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvec
         for (int i = 0; i < n; ++i) {
             // 检查分母是否为0，避免除以0的错误
             // if (abs(a(i, i) + fac) > 1.0e-5) {
-            if (abs(denseA_Si2(i, i)) > 1.0e-5) {
-                tvecs(i, icol) = vecs(i, icol) / (denseA_Si2(i, i));
+            if (abs(denseA_Si2(i, i)+shift) > 1.0e-5) {
+                tvecs(i, icol) = vecs(i, icol) / (denseA_Si2(i, i)+shift);
             }
         }
     }
@@ -257,7 +246,7 @@ void avec_Na5(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs)
     avecs = denseA_Na5 * vecs;
 }
 
-void precnd_Na5(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs){
+void precnd_Na5(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift){
     if(denseA_Na5.rows() == 0){
         initializeMatrixNa5();
     }
@@ -265,8 +254,8 @@ void precnd_Na5(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvec
         for (int i = 0; i < n; ++i) {
             // 检查分母是否为0，避免除以0的错误
             // if (abs(a(i, i) + fac) > 1.0e-5) {
-            if (abs(denseA_Na5(i, i)) > 1.0e-5) {
-                tvecs(i, icol) = vecs(i, icol) / (denseA_Na5(i, i));
+            if (abs(denseA_Na5(i, i)+shift) > 1.0e-5) {
+                tvecs(i, icol) = vecs(i, icol) / (denseA_Na5(i, i)+shift);
             }
         }
     }

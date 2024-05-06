@@ -1,6 +1,7 @@
 // #include "lobpcg.h"
 #include <iostream>
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 // void _strange_avec_change_size(int n, int m, const Eigen::MatrixXd vec, Eigen::MatrixXd& after_vec){
 //     after_vec = vec;
 // }
@@ -45,6 +46,6 @@ int main(){
     // for(int j=i+1; j<n_max_subspace; ++j) activeMask(j) = ACTIVE;
     // std::cout<< activeMask.transpose() << std::endl;
 
-    Eigen::MatrixXd a;
-    std::cout << a.rows() <<"  "<< a.cols() << std::endl;
+    // Eigen::MatrixXd a;
+    // std::cout << a.rows() <<"  "<< a.cols() << std::endl;
 }
