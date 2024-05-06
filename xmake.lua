@@ -15,6 +15,9 @@ target("main")
         os.cp("matrix/sparseA.mtx", "$(buildir)")
         os.cp("matrix/a1.mtx", "$(buildir)")
         os.cp("matrix/b1.mtx", "$(buildir)")
+        os.cp("matrix/Si5H12.mtx", "$(buildir)")
+        os.cp("matrix/Si2.mtx", "$(buildir)")
+        os.cp("matrix/Na5.mtx", "$(buildir)")
      end)
 
     -- Add the test files

@@ -117,6 +117,29 @@ void test_large_1000(){
     std::cout << "------- final -------" << std::endl;
     std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
 }
+void test_large_5000(){
+    int n = 5000;
+    int n_eigenpairs = 20;//5;
+    int n_max_subspace = std::min(2*n_eigenpairs, n_eigenpairs + 5);
+    bool solving_generalized = false;
+    int max_iter = 1000;
+    double tol = 1e-6;
+    double shift = 0.0;
+    bool verbose = true;
+    Eigen::VectorXd eig(n_max_subspace);
+    Eigen::MatrixXd evec(n, n_max_subspace);
+    eig.setZero(); evec.setZero();
+    int ok = lobpcg_solve(
+        avec,/*_diag_matvec*//*a1vec*/
+        mprec,/*_no_matvec*/ /*mprec*/
+        _no_matvec/*bvec*/,
+        eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
+
+    if(ok != LOBPCG_CONSTANTS::success) std::cerr<< "not ok! "<< std::endl;
+    else std::cout << "ok! converged "<< std::endl;
+    std::cout << "------- final -------" << std::endl;
+    std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
+}
 
 void test_gen_9() {
     int n = 9;//100;
@@ -167,12 +190,86 @@ void test_gen_1000(){
     std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
 }
 
-void real_Si5H12(){}
+void real_Si2(){
+    int n = 769;
+    int n_eigenpairs = 8;//5;
+    int n_max_subspace = std::min(2*n_eigenpairs, n_eigenpairs + 5);
+    bool solving_generalized = false;
+    int max_iter = 1000;
+    double tol = 1e-6;
+    double shift = 0.0;
+    bool verbose = true;
+    Eigen::VectorXd eig(n_max_subspace);
+    Eigen::MatrixXd evec(n, n_max_subspace);
+    eig.setZero(); evec.setZero();
+    int ok = lobpcg_solve(
+        avec_Si2,/*_diag_matvec*//*a1vec*/
+        precnd_Si2,/*_no_matvec*/ /*mprec*/
+        _no_matvec/*bvec*/,
+        eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
+
+    if(ok != LOBPCG_CONSTANTS::success) std::cerr<< "not ok! "<< std::endl;
+    else std::cout << "ok! converged "<< std::endl;
+    std::cout << "------- final -------" << std::endl;
+    std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
+}
+
+void real_Na5(){
+    int n = 5832;
+    int n_eigenpairs = 3;//5;
+    int n_max_subspace = std::min(2*n_eigenpairs, n_eigenpairs + 5);
+    bool solving_generalized = false;
+    int max_iter = 1000;
+    double tol = 1e-6;
+    double shift = 0.0;
+    bool verbose = true;
+    Eigen::VectorXd eig(n_max_subspace);
+    Eigen::MatrixXd evec(n, n_max_subspace);
+    eig.setZero(); evec.setZero();
+    int ok = lobpcg_solve(
+        avec_Na5,/*_diag_matvec*//*a1vec*/
+        precnd_Na5,/*_no_matvec*/ /*mprec*/
+        _no_matvec/*bvec*/,
+        eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
+
+    if(ok != LOBPCG_CONSTANTS::success) std::cerr<< "not ok! "<< std::endl;
+    else std::cout << "ok! converged "<< std::endl;
+    std::cout << "------- final -------" << std::endl;
+    std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
+}
+
+void real_Si5H12(){
+    int n = 19896;
+    int n_eigenpairs = 1;//5;
+    int n_max_subspace = std::min(2*n_eigenpairs, n_eigenpairs + 5);
+    bool solving_generalized = false;
+    int max_iter = 1000;
+    double tol = 1e-6;
+    double shift = 0.0;
+    bool verbose = true;
+    Eigen::VectorXd eig(n_max_subspace);
+    Eigen::MatrixXd evec(n, n_max_subspace);
+    eig.setZero(); evec.setZero();
+    int ok = lobpcg_solve(
+        avec_Si5H12,/*_diag_matvec*//*a1vec*/
+        _no_matvec,/*_no_matvec*/ /*mprec*/
+        _no_matvec/*bvec*/,
+        eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
+
+    if(ok != LOBPCG_CONSTANTS::success) std::cerr<< "not ok! "<< std::endl;
+    else std::cout << "ok! converged "<< std::endl;
+    std::cout << "------- final -------" << std::endl;
+    std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
+}
 
 int main(){
     // test_sparse_diag_A();
     // test_a1_9();
     // test_large_1000();
-    test_gen_9();
+    // test_large_5000();
+    // test_gen_9();
+    // real_Si2();
+    real_Na5();
+    // real_Si5H12();
     return 0;
 }

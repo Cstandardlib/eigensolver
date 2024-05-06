@@ -18,7 +18,14 @@ void precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs);
 // preconditioner for avec
 void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px);
 
+void avec_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
+void precnd_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs);
+
+void avec_Na5(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
+void precnd_Na5(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs);
+
 void avec_Si5H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
+// void precnd_Si5H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs);
 
 // template <typename Derived>
 // void avec(int n, int m, Eigen::DenseBase<Derived>& vecs, Eigen::DenseBase<Derived>& avecs){

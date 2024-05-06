@@ -189,7 +189,133 @@ void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px) {
     }
 }
 
+static Eigen::MatrixXd denseA_Si2;
+void initializeMatrixSi2(){
+    std::ifstream f("../../../Si2.mtx");
+    if(!f.is_open()) {std::cerr << "failed to open file" << std::endl; return;}
+    std::cout <<"building denseA_Si2, ";
+    fast_matrix_market::read_matrix_market_eigen_dense(f, denseA_Si2);
+    std::cout <<"size = " << denseA_Si2.rows() << ", " << denseA_Si2.cols() << std::endl;
+    std::cout << "denseA_Si2 size = " << denseA_Si2.rows() << ", " << denseA_Si2.cols() << std::endl;
+}
+
+void avec_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
+    if(denseA_Si2.rows() == 0){
+        initializeMatrixSi2();
+    }
+    if(denseA_Si2.rows() != n || denseA_Si2.cols() != n){
+        std::cerr << "input sparse matrix must be of size (n,n) = "<<"("<<n<<", "<<n<<")"; return;
+    }
+    if(vecs.rows() != n || vecs.cols() != m){
+        std::cerr << "vecs must be of size (n,m)"; return;
+    }
+    if(avecs.rows() != n || avecs.cols() != m){
+        std::cerr << "avecs must be of size (n,m)"; return;
+    }
+    avecs = denseA_Si2 * vecs;
+}
+
+void precnd_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs){
+    if(denseA_Si2.rows() == 0){
+        initializeMatrixSi2();
+    }
+    for (int icol = 0; icol < m; ++icol) {
+        for (int i = 0; i < n; ++i) {
+            // 检查分母是否为0，避免除以0的错误
+            // if (abs(a(i, i) + fac) > 1.0e-5) {
+            if (abs(denseA_Si2(i, i)) > 1.0e-5) {
+                tvecs(i, icol) = vecs(i, icol) / (denseA_Si2(i, i));
+            }
+        }
+    }
+}
+
+// build Na5 avec and precnd
+static Eigen::MatrixXd denseA_Na5;
+void initializeMatrixNa5(){
+    std::ifstream f("../../../Na5.mtx");
+    if(!f.is_open()) {std::cerr << "failed to open file" << std::endl; return;}
+    std::cout <<"building denseA_Na5, ";
+    fast_matrix_market::read_matrix_market_eigen_dense(f, denseA_Na5);
+    std::cout <<"size = " << denseA_Na5.rows() << ", " << denseA_Na5.cols() << std::endl;
+    std::cout << "denseA_Si2 size = " << denseA_Na5.rows() << ", " << denseA_Na5.cols() << std::endl;
+}
+
+void avec_Na5(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
+    if(denseA_Na5.rows() == 0){
+        initializeMatrixNa5();
+    }
+    if(denseA_Na5.rows() != n || denseA_Na5.cols() != n){
+        std::cerr << "input sparse matrix must be of size (n,n) = "<<"("<<n<<", "<<n<<")"; return;
+    }
+    if(vecs.rows() != n || vecs.cols() != m){
+        std::cerr << "vecs must be of size (n,m)"; return;
+    }
+    if(avecs.rows() != n || avecs.cols() != m){
+        std::cerr << "avecs must be of size (n,m)"; return;
+    }
+    avecs = denseA_Na5 * vecs;
+}
+
+void precnd_Na5(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs){
+    if(denseA_Na5.rows() == 0){
+        initializeMatrixNa5();
+    }
+    for (int icol = 0; icol < m; ++icol) {
+        for (int i = 0; i < n; ++i) {
+            // 检查分母是否为0，避免除以0的错误
+            // if (abs(a(i, i) + fac) > 1.0e-5) {
+            if (abs(denseA_Na5(i, i)) > 1.0e-5) {
+                tvecs(i, icol) = vecs(i, icol) / (denseA_Na5(i, i));
+            }
+        }
+    }
+}
+
+
+
+
+
+
+// --------------------------------------------
+static Eigen::SparseMatrix<double> sparseA;
+void initializeSparse(){
+    std::ifstream f("../../../Si5H12.mtx");
+    if(!f.is_open()) {std::cerr << "failed to open file" << std::endl; return;}
+    std::cout <<"building spareseA, ";
+    fast_matrix_market::read_matrix_market_eigen(f, sparseA);
+    std::cout <<"size = " << sparseA.rows() << ", " << sparseA.cols() << std::endl;
+    std::cout << "sparseA size = " << sparseA.rows() << ", " << sparseA.cols() << std::endl;
+}
 
 void avec_Si5H12(int n, int m, const Eigen::MatrixXd &vecs, Eigen::MatrixXd &avecs)
 {
+    if(sparseA.rows() == 0){
+        initializeSparse();
+    }
+    if(sparseA.rows() != n || sparseA.cols() != n){
+        std::cerr << "input sparse matrix must be of size (n,n) = "<<"("<<n<<", "<<n<<")"; return;
+    }
+    if(vecs.rows() != n || vecs.cols() != m){
+        std::cerr << "vecs must be of size (n,m)"; return;
+    }
+    if(avecs.rows() != n || avecs.cols() != m){
+        std::cerr << "avecs must be of size (n,m)"; return;
+    }
+    avecs = sparseA * vecs;
 }
+
+// void precnd_Si5H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs){
+//     if(sparseA.rows() == 0){
+//         initializeSparse();
+//     }
+//     for (int icol = 0; icol < m; ++icol) {
+//         for (int i = 0; i < n; ++i) {
+//             // 检查分母是否为0，避免除以0的错误
+//             // if (abs(a(i, i) + fac) > 1.0e-5) {
+//             if (abs(sparseA.coeffDiagonal(i)) > 1.0e-5) {
+//                 tvecs(i, icol) = vecs(i, icol) / (sparseA(i, i));
+//             }
+//         }
+//     }
+// }

@@ -52,6 +52,7 @@ int lobpcg_solve(
 ){
     /* ! note that eig and evec should be allocated n_max_subspace and (n,n_max_subspace),
         not n_eigenpairs and (n,n_eigenpairs) */
+    std::cout << "LOBPCG solving eigenpairs of size " << n_eigenpairs << " with supspace of size " << n_max_subspace << std::endl;
 
     // 设置输出格式，这里设置浮点数的精度为5位小数
     Eigen::IOFormat fmt(5);
