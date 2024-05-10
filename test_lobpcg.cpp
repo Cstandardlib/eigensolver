@@ -10,21 +10,16 @@
 // identity matrix-vector product
 void _no_matvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& still_vecs){
     // do nothing but copy, still_vecs = I*vesc
-    // print size n,m
-    // std::cout << "_no_matvec is called for size(n,m) = "<<"("<<n<<", "<<m<<")" << std::endl;
     still_vecs.topLeftCorner(n,m) = vecs.topLeftCorner(n,m);
 }
 
 void _no_precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& still_vecs, double shift){
     // do nothing but copy, still_vecs = I*vesc
-    // print size n,m
-    // std::cout << "_no_matvec is called for size(n,m) = "<<"("<<n<<", "<<m<<")" << std::endl;
     still_vecs.topLeftCorner(n,m) = vecs.topLeftCorner(n,m);
 }
 
 void _diag_matvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& after_vecs){
     // diagonal matrix-vector product
-    // after_vecs = 5 * vecs;
     Eigen::SparseMatrix<double> mat(9,9);
     mat.diagonal() <<5,5,5,5,5,5,5,5,5;
     after_vecs = mat * vecs;
@@ -86,20 +81,6 @@ void test_a1_9() {
     std::cout << "------- final -------" << std::endl;
     std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
     std::cout << "LOBPCG eigenvectors = \n"<< evec.leftCols(n_eigenpairs) << std::endl;
-    // std::cout << "eigenvectors = \n"<< evec << std::endl;
-
-    // std::ifstream f("../../../a1.mtx");
-    // if(!f.is_open()) {std::cerr << "failed to open file" << std::endl; return;}
-    // Eigen::SparseMatrix<double> mat;
-    // fast_matrix_market::read_matrix_market_eigen(f, mat); // std::cout << mat << std::endl;
-    // mat.diagonal() <<5,5,5,5,5,5,5,5,5;
-    // //1,2,3,4,5,6,7,8,9;
-    // //2,2,2,2,2,2,2,2,2;
-    // Eigen::MatrixXd A_dense = mat.toDense();
-    // // std::cout << "A_dense = \n"<< A_dense << std::endl;
-    // Eigen::VectorXd eig_real(9);
-    // selfadjoint_eigensolver(A_dense, eig_real, 9);
-    // std::cout << "eig_real = \n"<< eig_real.transpose() << std::endl;
 }
 
 void test_large_1000(){

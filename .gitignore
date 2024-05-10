@@ -2,11 +2,7 @@
 build/
 dist/
 bin/
-
-# Ignore open source dependencies
-opensource/
-*.f90
-*.zip
+out/
 
 
 # Ignore compiled files
