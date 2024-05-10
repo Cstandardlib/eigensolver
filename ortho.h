@@ -17,9 +17,11 @@
  * b_ortho_against_y
  */
 
+// #define USE_QR
+
 void ortho(int n, int m, Eigen::MatrixXd& u);
 void ortho_qr(int n, int m, Eigen::MatrixXd &u);
-void ortho_cho(int n, int m, Eigen::MatrixXd &x);
+// void ortho_cho(int n, int m, Eigen::MatrixXd &x);
 
 void b_ortho(int n, int m, Eigen::MatrixXd& u, Eigen::MatrixXd& bu);
 

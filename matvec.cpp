@@ -115,9 +115,9 @@ void sparseAvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avec
 void avec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
     // check vecs and avecs are of size(n,m)
     if(vecs.rows() != n || vecs.cols() != m){
-        std::cerr << "vecs must be of size (n,m)"; return;
+        std::cerr << "avec failed! vecs must be of size (n,m)"; return;
     }
-    if(avecs.rows() != n || avecs.cols() != m){std::cerr << "bvecs must be of size (n,m)"; return;}
+    if(avecs.rows() != n || avecs.cols() != m){std::cerr << "avec failed! avecs must be of size (n,m)"; return;}
     if (a.rows() == 0) initializeMatrix(n);
     // Perform matrix-vector multiplication for each column of x
     for (int icol = 0; icol < m; ++icol) avecs.col(icol) = a * vecs.col(icol);
@@ -126,12 +126,12 @@ void avec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs){
 // b = diag(2,2, ...)
 void bvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs){
     // check vecs and bvecs are of size(n,m)
-    std::cout << "bvec: n, m = " << n << ", " << m << std::endl;
+    // std::cout << "bvec: n, m = " << n << ", " << m << std::endl;
     if(vecs.rows() != n || vecs.cols() != m){
-        std::cerr << "vecs must be of size (n,m)"; return;
+        std::cerr << "bvecs failed! vecs must be of size (n,m)"; return;
     }
     if(bvecs.rows() != n || bvecs.cols() != m){
-        std::cerr << "bvecs must be of size (n,m)"; return;
+        std::cerr << "bvecs failed! bvecs must be of size (n,m)"; return;
     }
     bvecs = 2*vecs;
 }

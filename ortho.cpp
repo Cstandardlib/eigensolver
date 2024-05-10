@@ -15,6 +15,8 @@
  */
 
 
+
+#ifdef USE_QR
 /**
  * @brief Orthonormalize a set of m vectors (of size n) using QR decomposition.
  *
@@ -45,23 +47,11 @@ void ortho(int n, int m, Eigen::MatrixXd &u)
         std::cerr << "QR decomposition was not successful." << std::endl;
 }
 
+#else // USE_QR not defined, use cholesky
 
-void ortho_qr(int n, int m, Eigen::MatrixXd &u)
-{
-    // direct approach, using QR
-    // Thin QR Factorization! U=Q1R1, see Matrix Computations Page 237
-    /* Eigen::HouseholderQR performs
-        a QR decomposition of a matrix A into matrices Q and R
-        such thatA=QR
-    */
-    Eigen::HouseholderQR<Eigen::MatrixXd> qr(u);
-    // Eigen::MatrixXd thinQ(u); // same shape as u
-    u.setIdentity();
-    u = qr.householderQ() * u;  // now u=Q
-}
-
-// void ortho(int n, int m, Eigen::MatrixXd &x)
-void ortho_cho(int n, int m, Eigen::MatrixXd &x)
+/* cholesky ortho */
+void ortho(int n, int m, Eigen::MatrixXd &x)
+// void ortho_cho(int n, int m, Eigen::MatrixXd &x)
 {
     // direct approach, using Cholesky
     // overlap = x'x
@@ -76,6 +66,22 @@ void ortho_cho(int n, int m, Eigen::MatrixXd &x)
     }
     else
         std::cerr << "Cholesky decomposition failed." << std::endl;
+}
+
+#endif // USE_QR
+
+void ortho_qr(int n, int m, Eigen::MatrixXd &u)
+{
+    // direct approach, using QR
+    // Thin QR Factorization! U=Q1R1, see Matrix Computations Page 237
+    /* Eigen::HouseholderQR performs
+        a QR decomposition of a matrix A into matrices Q and R
+        such thatA=QR
+    */
+    Eigen::HouseholderQR<Eigen::MatrixXd> qr(u);
+    // Eigen::MatrixXd thinQ(u); // same shape as u
+    u.setIdentity();
+    u = qr.householderQ() * u;  // now u=Q
 }
 
 void ortho_qr_two_phase(int n, int m, Eigen::MatrixXd &x){
@@ -122,7 +128,7 @@ void b_ortho(int n, int m, Eigen::MatrixXd& u, Eigen::MatrixXd& bu) {
     // 计算重叠矩阵
     ubu = u.transpose() * bu;
     // ubu = (u.transpose() * bu).eval();
-    std::cout << "overlap ubu = \n" << ubu << std::endl;
+    // std::cout << "overlap ubu = \n" << ubu << std::endl;
 
     if (use_svd) {
         // 使用SVD进行b-正交化
@@ -294,8 +300,8 @@ void b_ortho_against_y(int n, int m, int k, Eigen::MatrixXd& x, const Eigen::Mat
     double diag_norm = yby.diagonal().array().square().sum();
     double out_norm = (yby.array().square()).sum() - diag_norm;
     if (!( (std::abs(diag_norm - m) <= tol_ortho) && (std::abs(out_norm) <= tol_ortho) )){
-        std::cerr << "Input y is not b-orthonormal!" << std::endl;
-        std::cerr << "diag norm:" << diag_norm << " | and out norm:" <<out_norm << std::endl;
+        std::cout << "Input y is not b-orthonormal!" << std::endl;
+        // std::cerr << "diag norm:" << diag_norm << " | and out norm:" <<out_norm << std::endl;
         // return;
         std::cout << "continue by Solving Y^TBY" << std::endl;
         is_y_orthonormal = false;

@@ -20,6 +20,7 @@ target("main")
         os.cp("matrix/Si5H12.mtx", "$(buildir)")
         os.cp("matrix/Si2.mtx", "$(buildir)")
         os.cp("matrix/Na5.mtx", "$(buildir)")
+        os.cp("matrix/Ga3As3H12.mtx", "$(buildir)")
      end)
 
     -- Add the test files

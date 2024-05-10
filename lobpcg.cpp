@@ -558,6 +558,7 @@ how to maintain bv
         // b_xp << bx, bp;
         Eigen::MatrixXd b_xp = bv.leftCols(n_max_subspace + n_active);
         b_ortho_against_y(n, n_max_subspace + n_active, n_active, w, xp, b_xp); // b-ortho w to [x p]
+        bw.resize(n,n_active);
         bvec(n, n_active, w, bw); // bw = b*w
         b_ortho(n, n_active, w, bw); // b-ortho
         bv.middleCols(index_w, n_active) = bw;
