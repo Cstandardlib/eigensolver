@@ -1,7 +1,7 @@
 #include "lobpcg.h" // lobpcg_solve
 #include "matvec.h" // avec, bvec, precnd
 #include "sparseMv.h"
-#include "utils.h"  //  selfadjoint_eigensolver
+// #include "utils.h"  //  selfadjoint_eigensolver
 
 #include <iostream>
 #include <fstream>
