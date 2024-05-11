@@ -130,7 +130,81 @@ void test_sparsemv(){
     std::cout << "avecs = \n" << avecs << std::endl;
 }
 
+void test_tridiagonal(){
+    Eigen::SparseMatrix<double> sparseA_Si2(5, 5);
+    // sparseA_Si2.insert(0, 1) = 1; // 位于第1行第2列的元素
+    // sparseA_Si2.insert(1, 2) = 2; // 位于第2行第3列的元素
+    // sparseA_Si2.insert(2, 3) = 3; // 位于第3行第4列的元素
+    // sparseA_Si2.insert(3, 4) = 4; // 位于第4行第5列的元素
+    // sparseA_Si2.insert(4, 3) = 5;
+    // sparseA_Si2.insert(0, 0) = 9;
+    // sparseA_Si2.insert(1, 1) = 6;
+    // sparseA_Si2.insert(2, 2) = 6;
+    // sparseA_Si2.insert(3, 3) = 7;
+    // sparseA_Si2.insert(4, 4) = 7;
+
+    // sparseA_Si2.insert(4, 0) = 1; // 位于第1行第2列的元素
+    // sparseA_Si2.insert(0, 4) = 1; // 位于第1行第2列的元素
+    // sparseA_Si2.insert(4, 1) = 1; // 位于第1行第2列的元素
+    // sparseA_Si2.insert(1, 4) = 1; // 位于第1行第2列的元素
+    // sparseA_Si2.insert(3, 2) = 2; // 位于第2行第3列的元素
+    // sparseA_Si2.insert(4, 2) = 3; // 位于第3行第4列的元素
+    // sparseA_Si2.insert(2, 4) = 3; // 位于第3行第4列的元素
+    // sparseA_Si2.insert(1, 4) = 4; // 位于第4行第5列的元素
+    // sparseA_Si2.insert(1, 3) = 5;
+
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            // 插入从1到9的整数
+            sparseA_Si2.insert(i, j) = (i) + (j + 1);
+        }
+    }
+    
+
+    int n = sparseA_Si2.rows();
+    Eigen::SparseMatrix<double> tridiagA_Si2;
+    tridiagA_Si2.resize(n, n);
+    tridiagA_Si2.reserve(3*n); // reserve space for tridiagonal elements
+
+    for(int i = 0; i < n; i++){
+        tridiagA_Si2.insert(i, i) = sparseA_Si2.coeff(i, i);
+        if(i > 0)
+            tridiagA_Si2.insert(i, i-1) = sparseA_Si2.coeff(i, i-1);
+        if(i < n-1)
+            tridiagA_Si2.insert(i, i+1) = sparseA_Si2.coeff(i, i+1);
+    }
+
+    tridiagA_Si2.makeCompressed();
+    std::cout << sparseA_Si2 << std::endl;
+    std::cout << tridiagA_Si2 << std::endl;
+
+    int m=3;
+
+    Eigen::MatrixXd vecs(n,m), tvecs(n,m);
+    vecs=Eigen::MatrixXd::Ones(n,m);
+
+    Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
+    solver.analyzePattern(tridiagA_Si2);
+    solver.factorize(tridiagA_Si2);
+
+    if (solver.info() != Eigen::Success) {
+        std::cerr << "SparseLU Decomposition failed when doing tridiagonal precnd" << std::endl;
+    }
+
+    // 使用LU分解来解线性系统
+    tvecs = solver.solve(vecs);
+
+    if (solver.info() != Eigen::Success) {
+        std::cerr << "Solving failed" << std::endl;
+    }
+
+    // 输出解矩阵
+    std::cout << "The solution matrix tvecs is:\n" << tvecs << std::endl;
+}
+
 int main(){
+    test_tridiagonal();
+    return 0;
     Eigen::SparseMatrix<double> sparseMat(3, 3);
     sparseMat.insert(0, 0) = 1.0;
     sparseMat.insert(0, 1) = 1.0; // 位于(0,1)位置的元素

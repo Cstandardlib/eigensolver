@@ -17,7 +17,12 @@
  * b_ortho_against_y
  */
 
+// deprecated, QR
 // #define USE_QR
+
+#define USE_THIN_QR
+
+// else use cholesky
 
 void ortho(int n, int m, Eigen::MatrixXd& u);
 void ortho_qr(int n, int m, Eigen::MatrixXd &u);

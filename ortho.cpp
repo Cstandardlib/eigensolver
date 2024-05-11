@@ -47,7 +47,25 @@ void ortho(int n, int m, Eigen::MatrixXd &u)
         std::cerr << "QR decomposition was not successful." << std::endl;
 }
 
-#else // USE_QR not defined, use cholesky
+#elif defined(USE_THIN_QR)
+// thinQR
+void ortho(int n, int m, Eigen::MatrixXd &u)
+{
+    // direct approach, using QR
+    // Thin QR Factorization! U=Q1R1, see Matrix Computations Page 237
+    /* Eigen::HouseholderQR performs
+        a QR decomposition of a matrix A into matrices Q and R
+        such thatA=QR
+    */
+    Eigen::HouseholderQR<Eigen::MatrixXd> qr(u);
+    // Eigen::MatrixXd thinQ(u); // same shape as u
+    u.setIdentity();
+    u = qr.householderQ() * u;  // now u=Q
+}
+
+
+#else // USE_QR and USE_THIN_QR not defined, use cholesky
+
 
 /* cholesky ortho */
 void ortho(int n, int m, Eigen::MatrixXd &x)
@@ -70,19 +88,7 @@ void ortho(int n, int m, Eigen::MatrixXd &x)
 
 #endif // USE_QR
 
-void ortho_qr(int n, int m, Eigen::MatrixXd &u)
-{
-    // direct approach, using QR
-    // Thin QR Factorization! U=Q1R1, see Matrix Computations Page 237
-    /* Eigen::HouseholderQR performs
-        a QR decomposition of a matrix A into matrices Q and R
-        such thatA=QR
-    */
-    Eigen::HouseholderQR<Eigen::MatrixXd> qr(u);
-    // Eigen::MatrixXd thinQ(u); // same shape as u
-    u.setIdentity();
-    u = qr.householderQ() * u;  // now u=Q
-}
+
 
 void ortho_qr_two_phase(int n, int m, Eigen::MatrixXd &x){
     // ortho using QR, two-phase

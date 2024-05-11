@@ -2,7 +2,9 @@ import re
 import matplotlib.pyplot as plt
 
 # 假设文件名为 'lobpcg_output.txt'
-filename = 'Ga3As3H12cho_1.txt'
+# filename = 'Ga3As3H12cho_1.txt'
+filename = 'out/gen1000thin_1_3_nopre.txt'
+
 
 # 初始化变量
 first_num_list = []
@@ -17,8 +19,8 @@ with open(filename, 'r') as file:
             first_num_list.append(float(match.group(1)))  # 提取第一个数
             fourth_num_list.append(float(match.group(4)))  # 提取第四个数
 
-first_num_list = first_num_list[0:60]
-fourth_num_list = fourth_num_list[0:60]
+first_num_list = first_num_list[0:30]
+fourth_num_list = fourth_num_list[0:30]
 # 打印提取的数值以验证
 print("First number list:", first_num_list)
 print("Fourth number list:", fourth_num_list)
