@@ -13,6 +13,7 @@ end
 b=diag(ones(n, 1) * 2);
 
 tic
-[Va, Ea] = eigs(a,b,200,'SA');
+[Va, Ea] = eigs(a,b,1,'SA'); % 92.057098√Î
+% [Va, Ea] = eigs(a,b,200,'SA'); % 92.057098√Î
 toc
 ea=diag(Ea);

@@ -61,6 +61,9 @@ void init_tridiagA_Na5(double shift){
 
 void tridiagA_precnd_Na5(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift){
     if(tridiagA_Na5.rows() == 0) init_tridiagA_Na5(shift);
+    for(int i = 0; i < n; i++){
+        tridiagA_Na5.coeffRef(i, i) = sparseA_Na5.coeff(i, i)+shift;
+    }
     // solve tridiagA_Na5 * tvecs = vecs // 计算LU分解
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
     solver.analyzePattern(tridiagA_Na5);
@@ -137,6 +140,9 @@ void init_tridiagA_Si2(double shift){
 
 void tridiagA_precnd_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift){
     if(tridiagA_Si2.rows() == 0) init_tridiagA_Si2(shift);
+    for(int i = 0; i < n; i++){
+        tridiagA_Si2.coeffRef(i, i) = tridiagA_Si2.coeff(i, i)+shift;
+    }
     // solve tridiagA_Si2 * tvecs = vecs // 计算LU分解
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
     solver.analyzePattern(tridiagA_Si2);
@@ -222,6 +228,9 @@ void init_tridiagA_Si5H12(double shift){
 
 void tridiagA_precnd_Si5H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift){
     if(tridiagA_Si5H12.rows() == 0) init_tridiagA_Si5H12(shift);
+    for(int i = 0; i < n; i++){
+        tridiagA_Si5H12.coeffRef(i, i) = tridiagA_Si5H12.coeff(i, i)+shift;
+    }
     // solve tridiagA_Si5H12 * tvecs = vecs // 计算LU分解
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
     solver.analyzePattern(tridiagA_Si5H12);
@@ -282,4 +291,40 @@ void sparse_precnd_Ga3As3H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::M
             }
         }
     }
+}
+
+Eigen::SparseMatrix<double> tridiagA_Ga3As3H12;
+void init_tridiagA_Ga3As3H12(double shift){
+    if(sparseA_Ga3As3H12.rows() == 0) init_SparseA_Ga3As3H12();
+
+    int n = sparseA_Ga3As3H12.rows();
+    tridiagA_Ga3As3H12.resize(n, n);
+    tridiagA_Ga3As3H12.reserve(3*n); // reserve space for tridiagonal elements
+
+    for(int i = 0; i < n; i++){
+        tridiagA_Ga3As3H12.insert(i, i) = sparseA_Ga3As3H12.coeff(i, i)+shift;
+        if(i > 0)
+            tridiagA_Ga3As3H12.insert(i, i-1) = sparseA_Ga3As3H12.coeff(i, i-1);
+        if(i < n-1)
+            tridiagA_Ga3As3H12.insert(i, i+1) = sparseA_Ga3As3H12.coeff(i, i+1);
+    }
+
+    tridiagA_Ga3As3H12.makeCompressed();
+}
+
+void tridiagA_precnd_Ga3As3H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift){
+    if(tridiagA_Ga3As3H12.rows() == 0) init_tridiagA_Ga3As3H12(shift);
+    for(int i = 0; i < n; i++){
+        tridiagA_Ga3As3H12.coeffRef(i, i) = tridiagA_Ga3As3H12.coeff(i, i)+shift;
+    }
+    // solve tridiagA_Ga3As3H12 * tvecs = vecs // 计算LU分解
+    Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
+    solver.analyzePattern(tridiagA_Ga3As3H12);
+    solver.factorize(tridiagA_Ga3As3H12);
+    if (solver.info() != Eigen::Success) {std::cerr << "SparseLU Decomposition failed when doing tridiagonal precnd" << std::endl;}
+    // 使用LU分解来解线性系统
+    tvecs = solver.solve(vecs);
+    if (solver.info() != Eigen::Success) {std::cerr << "SparseLU Solving failed when doing tridiagonal precnd" << std::endl;}
+    // 输出解矩阵
+    // std::cout << "The solution matrix tvecs is:\n" << tvecs << std::endl;
 }

@@ -14,10 +14,15 @@ void b1vec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs);
 // template <typename Derived>
 void avec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
 void bvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs);
-void precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs);
+// void precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs);
 
 // preconditioner for avec
 void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px, double shift);
+
+void tridiagA_precnd_a(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift);
+
+
+
 
 void avec_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& avecs);
 void precnd_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift);

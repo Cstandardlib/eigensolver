@@ -404,7 +404,19 @@ x, ax is new[k+1]
             //     << Eigen::VectorXi::Constant(n_max_subspace-1-i, ACTIVE) << std::endl;
 #endif 
             activeMask.segment(i+1, n_max_subspace-1-i) = Eigen::VectorXi::Constant(n_max_subspace-1-i, ACTIVE);
+            
             // for(int j=i+1; j<n_max_subspace; ++j) activeMask(j) = ACTIVE;
+#ifdef DEBUG_LOBPCG
+            if(i==n_eigenpairs-2){
+                std::cout << "set active from " << i+1 << " to end" << std::endl;
+                std::cout << "eigvecs from " << (i+1) << " to " << n_max_subspace-1 << " are re-activated" << std::endl;
+                for(int j=i+1; j<n_max_subspace; ++j) std::cout << "active mask #"<< j << "= " << activeMask(j) << std::endl;
+            }
+#endif
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // need to break;
+            // or will be set INACTIVE by later iters in segment(i+1, n_max_subspace-1-i)
+            break;
 #ifdef DEBUG_LOBPCG
             // std::cout << "eigvecs from " << (i+1) << " to " << n_max_subspace-1 << " are re-activated" << std::endl;
 #endif            
@@ -580,6 +592,10 @@ how to maintain bv
 #ifdef DEBUG_UPDATE
     // std::cout << "updated v[x p w_new] = \n" << v << std::endl;
 #endif
+    if(iter>=max_iter-1){
+        std::cerr << "LOBPCG did not converge in " << max_iter << " iterations" << std::endl;
+        return LOBPCG_CONSTANTS::fail;
+    }
 } // end -  main loop for
 
 // --- 3. clean up ---
@@ -590,5 +606,6 @@ how to maintain bv
     std::cout << std::setw(35) << "LOBPCG time for avec: " << t_avec.count() << std::endl;
     std::cout << std::setw(35) << "LOBPCG time for ortho: " << t_ortho.count() << std::endl;
     std::cout << std::setw(35) << "LOBPCG time for Rayleigh-Ritz: " << t_solveRR.count() << std::endl;
+    
     return LOBPCG_CONSTANTS::success;
 } // end - lobpcg_solve

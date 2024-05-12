@@ -9,6 +9,7 @@
 
 // namespace dense_a{}
 static Eigen::MatrixXd a;
+// init dense a(n, n)
 void initializeMatrix(int n) {
     std::cout << "initializing a..." << std::endl;
     a.resize(n, n);
@@ -137,16 +138,16 @@ void bvec(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& bvecs){
 }
 
 // identity preconditioner
-void precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs){
-    // check vecs and tvecs are of size(n,m)
-    if(vecs.rows() != n || vecs.cols() != m){
-        std::cerr << "vecs must be of size (n,m)"; return;
-    }
-    if(tvecs.rows() != n || tvecs.cols() != m){
-        std::cerr << "tvecs must be of size (n,m)"; return;
-    }
-    tvecs = vecs;
-}
+// void precnd(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs){
+//     // check vecs and tvecs are of size(n,m)
+//     if(vecs.rows() != n || vecs.cols() != m){
+//         std::cerr << "vecs must be of size (n,m)"; return;
+//     }
+//     if(tvecs.rows() != n || tvecs.cols() != m){
+//         std::cerr << "tvecs must be of size (n,m)"; return;
+//     }
+//     tvecs = vecs;
+// }
 
 
 
@@ -177,6 +178,51 @@ void mprec(int n, int m, const Eigen::MatrixXd& x, Eigen::MatrixXd& px, double s
         }
     }
 }
+
+Eigen::SparseMatrix<double> tridiagA_a;
+void init_tridiagA_a(int n, double shift){
+    if(a.rows() == 0) initializeMatrix(n);
+
+    tridiagA_a.resize(n, n);
+    tridiagA_a.reserve(3*n); // reserve space for tridiagonal elements
+
+    for(int i = 0; i < n; i++){
+        tridiagA_a.insert(i, i) = a(i, i)+shift;
+        if(i > 0)
+            tridiagA_a.insert(i, i-1) = a(i, i-1);
+        if(i < n-1)
+            tridiagA_a.insert(i, i+1) = a(i, i+1);
+    }
+    // std::cout << "tridiagA(0:10, 0:10) = \n" << tridiagA_a.block(0,0,10,10) << std::endl;
+    tridiagA_a.makeCompressed();
+}
+
+// sparse tridiag preconditioner for dense a(n, n)
+void tridiagA_precnd_a(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift){
+    if(tridiagA_a.rows() == 0) init_tridiagA_a(n, shift);
+    // solve tridiagA_a * tvecs = vecs // 计算LU分解
+    for(int i = 0; i < n; i++){
+        tridiagA_a.coeffRef(i, i) = a(i, i)+shift;
+    }
+    Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
+    solver.analyzePattern(tridiagA_a);
+    solver.factorize(tridiagA_a);
+    if (solver.info() != Eigen::Success) {std::cerr << "SparseLU Decomposition failed when doing tridiagonal precnd" << std::endl;}
+    // 使用LU分解来解线性系统
+    tvecs = solver.solve(vecs);
+    if (solver.info() != Eigen::Success) {std::cerr << "SparseLU Solving failed when doing tridiagonal precnd" << std::endl;}
+    // 输出解矩阵
+    // std::cout << "The solution matrix tvecs is:\n" << tvecs << std::endl;
+}
+
+
+
+
+
+
+
+
+// dense Si2
 
 static Eigen::MatrixXd denseA_Si2;
 void initializeMatrixSi2(){

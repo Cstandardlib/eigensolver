@@ -108,8 +108,8 @@ void test_large_1000(){
 }
 void test_large_5000(){
     int n = 5000;
-    int n_eigenpairs = 1;//200;//5;
-    int n_max_subspace = 3;//std::min(2*n_eigenpairs, n_eigenpairs + 25);
+    int n_eigenpairs = 200;//200;//5;
+    int n_max_subspace = 225;//std::min(2*n_eigenpairs, n_eigenpairs + 25);
     bool solving_generalized = true;
     int max_iter = 1000;
     double tol = 1e-6;
@@ -120,7 +120,7 @@ void test_large_5000(){
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         avec,/*_diag_matvec*//*a1vec*/
-        mprec,/*_no_precnd*/ /*mprec*/
+        tridiagA_precnd_a,/*_no_precnd*/ /*mprec*/ /*tridiagA_precnd_a*/
         bvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
@@ -217,7 +217,7 @@ void run_sparse_Si2(){
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         sparse_avec_Si2,/*_diag_matvec*//*a1vec*/
-        _no_precnd,/*_no_precnd*/ /*tridiagA_precnd_Si2*//*sparse_precnd_Si2*/
+        tridiagA_precnd_Si2,/*_no_precnd*/ /*tridiagA_precnd_Si2*//*sparse_precnd_Si2*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
@@ -241,7 +241,7 @@ void run_sparse_Na5(){
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         sparse_avec_Na5,/*_diag_matvec*//*a1vec*/
-        _no_precnd,/*_no_precnd*/ /*sparse_precnd_Na5*//*tridiagA_precnd_Na5*/
+        tridiagA_precnd_Na5,/*_no_precnd*/ /*sparse_precnd_Na5*//*tridiagA_precnd_Na5*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
@@ -265,7 +265,7 @@ void run_sparse_Si5H12(){
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         sparse_avec_Si5H12,/*_diag_matvec*//*a1vec*/
-        tridiagA_precnd_Si5H12,/*_no_precnd*/ /*tridiagA_precnd_Si5H12*/ /*sparse_precnd_Si5H12*/
+        sparse_precnd_Si5H12,/*_no_precnd*/ /*tridiagA_precnd_Si5H12*/ /*sparse_precnd_Si5H12*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
@@ -277,8 +277,8 @@ void run_sparse_Si5H12(){
 
 void run_sparse_Ga3As3H12(){
     int n = 61349;
-    int n_eigenpairs = 1;//10;//5;
-    int n_max_subspace = 5;//20;//std::min(2*n_eigenpairs, n_eigenpairs + 50);
+    int n_eigenpairs = 5;//5;
+    int n_max_subspace = 10;//std::min(2*n_eigenpairs, n_eigenpairs + 50);
     bool solving_generalized = false;
     int max_iter = 1000;
     double tol = 1e-6;
@@ -289,7 +289,7 @@ void run_sparse_Ga3As3H12(){
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         sparse_avec_Ga3As3H12,/*_diag_matvec*//*a1vec*/
-        sparse_precnd_Ga3As3H12,/*_no_precnd*/ /*mprec*//*sparse_precnd_Ga3As3H12*/
+        sparse_precnd_Ga3As3H12,/*_no_precnd*/ /*tridiagA_precnd_Ga3As3H12*//*sparse_precnd_Ga3As3H12*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
@@ -306,9 +306,9 @@ int main(){
     // test_large_5000();
     // test_gen_9();
     // run_dense_Si2();
-    // run_sparse_Si2();
+    run_sparse_Si2();
     // run_sparse_Na5();
-    run_sparse_Si5H12();
+    // run_sparse_Si5H12();
     // run_sparse_Ga3As3H12();
     return 0;
 }
