@@ -268,10 +268,11 @@ std::cout << "first round A_reduced' * A_reduced = \n" << A_reduced.transpose()*
                 << std::setw(11) << "converged"
                 << std::endl;
     }
+    int iter = 0;
 
 /* ----------------------------------------------------------------------*/
     /* start main loop */
-for(int iter = 0; iter < max_iter; ++iter){
+for(iter = 0; iter < max_iter; ++iter){
 
 
 
@@ -441,6 +442,7 @@ x, ax is new[k+1]
     if((activeMask.head(n_eigenpairs).array() == INACTIVE).all()){
         // all vectors are locked, i.e. converged
         std::cout << "> all of required " << n_eigenpairs << " eigenpairs converged! <" << std::endl;
+        std::cout << "converged after " << iter << " iters." << std::endl;
         evec = x; // x(n, n_max_subspace)
         break; // exit main loop
     }
@@ -602,6 +604,7 @@ how to maintain bv
     /* verbose output */
     tp_end = get_current_time();
     t_total = tp_end - tp_start;
+    std::cout << std::left;
     std::cout << std::setw(35) << "LOBPCG total time: " << t_total.count() << std::endl;
     std::cout << std::setw(35) << "LOBPCG time for avec: " << t_avec.count() << std::endl;
     std::cout << std::setw(35) << "LOBPCG time for ortho: " << t_ortho.count() << std::endl;

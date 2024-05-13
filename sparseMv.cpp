@@ -141,7 +141,7 @@ void init_tridiagA_Si2(double shift){
 void tridiagA_precnd_Si2(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift){
     if(tridiagA_Si2.rows() == 0) init_tridiagA_Si2(shift);
     for(int i = 0; i < n; i++){
-        tridiagA_Si2.coeffRef(i, i) = tridiagA_Si2.coeff(i, i)+shift;
+        tridiagA_Si2.coeffRef(i, i) = sparseA_Si2.coeff(i, i)+shift;
     }
     // solve tridiagA_Si2 * tvecs = vecs // 计算LU分解
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
@@ -229,7 +229,7 @@ void init_tridiagA_Si5H12(double shift){
 void tridiagA_precnd_Si5H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift){
     if(tridiagA_Si5H12.rows() == 0) init_tridiagA_Si5H12(shift);
     for(int i = 0; i < n; i++){
-        tridiagA_Si5H12.coeffRef(i, i) = tridiagA_Si5H12.coeff(i, i)+shift;
+        tridiagA_Si5H12.coeffRef(i, i) = sparseA_Si5H12.coeff(i, i)+shift;
     }
     // solve tridiagA_Si5H12 * tvecs = vecs // 计算LU分解
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
@@ -315,7 +315,7 @@ void init_tridiagA_Ga3As3H12(double shift){
 void tridiagA_precnd_Ga3As3H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift){
     if(tridiagA_Ga3As3H12.rows() == 0) init_tridiagA_Ga3As3H12(shift);
     for(int i = 0; i < n; i++){
-        tridiagA_Ga3As3H12.coeffRef(i, i) = tridiagA_Ga3As3H12.coeff(i, i)+shift;
+        tridiagA_Ga3As3H12.coeffRef(i, i) = sparseA_Ga3As3H12.coeff(i, i)+shift;
     }
     // solve tridiagA_Ga3As3H12 * tvecs = vecs // 计算LU分解
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;

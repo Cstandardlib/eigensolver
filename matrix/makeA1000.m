@@ -10,5 +10,5 @@ for i = 1:n
     end
 end
 
-[Va, Ea] = eigs(a,20,'SM');
-Ea=diag(Ea);
+%[Va, Ea] = eigs(a,20,'SM');
+%Ea=diag(Ea);

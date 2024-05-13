@@ -205,24 +205,26 @@ void run_dense_Si2(){
 
 void run_sparse_Si2(){
     int n = 769;
-    int n_eigenpairs = 200;//;//5;
-    int n_max_subspace = 225;//std::min(2*n_eigenpairs, n_eigenpairs + 5);
+    int n_eigenpairs = 30;//;//5;
+    int n_max_subspace = 40;//std::min(2*n_eigenpairs, n_eigenpairs + 5);
+    
     bool solving_generalized = false;
     int max_iter = 1000;
     double tol = 1e-6;
     double shift = 0.0;
-    bool verbose = true;
+    bool verbose = false;
     Eigen::VectorXd eig(n_max_subspace);
     Eigen::MatrixXd evec(n, n_max_subspace);
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         sparse_avec_Si2,/*_diag_matvec*//*a1vec*/
-        tridiagA_precnd_Si2,/*_no_precnd*/ /*tridiagA_precnd_Si2*//*sparse_precnd_Si2*/
+        _no_precnd,/*_no_precnd*/ /*tridiagA_precnd_Si2*//*sparse_precnd_Si2*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
     if(ok != LOBPCG_CONSTANTS::success) std::cerr<< "not ok! "<< std::endl;
     else std::cout << "ok! converged "<< std::endl;
+    std::cout << "Si2: n_eigenpairs = "<< n_eigenpairs << ", n_max_subspace = "<< n_max_subspace << std::endl;
     std::cout << "------- final -------" << std::endl;
     std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
 }
@@ -230,23 +232,25 @@ void run_sparse_Si2(){
 void run_sparse_Na5(){
     int n = 5832;
     int n_eigenpairs = 100;//5;
-    int n_max_subspace = 120;//std::min(2*n_eigenpairs, n_eigenpairs + 5);
+    int n_max_subspace = 100;//std::min(2*n_eigenpairs, n_eigenpairs + 5);
+    
     bool solving_generalized = false;
     int max_iter = 1000;
     double tol = 1e-6;
     double shift = 0.0;
-    bool verbose = true;
+    bool verbose = false;
     Eigen::VectorXd eig(n_max_subspace);
     Eigen::MatrixXd evec(n, n_max_subspace);
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         sparse_avec_Na5,/*_diag_matvec*//*a1vec*/
-        tridiagA_precnd_Na5,/*_no_precnd*/ /*sparse_precnd_Na5*//*tridiagA_precnd_Na5*/
+        sparse_precnd_Na5,/*_no_precnd*/ /*sparse_precnd_Na5*//*tridiagA_precnd_Na5*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
     if(ok != LOBPCG_CONSTANTS::success) std::cerr<< "not ok! "<< std::endl;
     else std::cout << "ok! converged "<< std::endl;
+    std::cout << "Na5: n_eigenpairs = " << n_eigenpairs << ", n_max_subspace = " << n_max_subspace << std::endl;
     std::cout << "------- final -------" << std::endl;
     std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
 }
@@ -255,30 +259,33 @@ void run_sparse_Si5H12(){
     int n = 19896;
     int n_eigenpairs = 200;//200;//5;
     int n_max_subspace = 225;//std::min(2*n_eigenpairs, n_eigenpairs + 5); //225;
+    
     bool solving_generalized = false;
     int max_iter = 1000;
     double tol = 1e-6;
     double shift = 0.0;
-    bool verbose = true;
+    bool verbose = false;
     Eigen::VectorXd eig(n_max_subspace);
     Eigen::MatrixXd evec(n, n_max_subspace);
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         sparse_avec_Si5H12,/*_diag_matvec*//*a1vec*/
-        sparse_precnd_Si5H12,/*_no_precnd*/ /*tridiagA_precnd_Si5H12*/ /*sparse_precnd_Si5H12*/
+        tridiagA_precnd_Si5H12,/*_no_precnd*/ /*tridiagA_precnd_Si5H12*/ /*sparse_precnd_Si5H12*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
     if(ok != LOBPCG_CONSTANTS::success) std::cerr<< "not ok! "<< std::endl;
     else std::cout << "ok! converged "<< std::endl;
+    std::cout << "Si5H12: n_eigenpairs = " << n_eigenpairs << ", n_max_subspace = " << n_max_subspace << std::endl;
     std::cout << "------- final -------" << std::endl;
     std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
 }
 
 void run_sparse_Ga3As3H12(){
     int n = 61349;
-    int n_eigenpairs = 5;//5;
-    int n_max_subspace = 10;//std::min(2*n_eigenpairs, n_eigenpairs + 50);
+    int n_eigenpairs = 1;//10;//5;
+    int n_max_subspace = 2;//20;//std::min(2*n_eigenpairs, n_eigenpairs + 50);
+    
     bool solving_generalized = false;
     int max_iter = 1000;
     double tol = 1e-6;
@@ -289,12 +296,13 @@ void run_sparse_Ga3As3H12(){
     eig.setZero(); evec.setZero();
     int ok = lobpcg_solve(
         sparse_avec_Ga3As3H12,/*_diag_matvec*//*a1vec*/
-        sparse_precnd_Ga3As3H12,/*_no_precnd*/ /*tridiagA_precnd_Ga3As3H12*//*sparse_precnd_Ga3As3H12*/
+        tridiagA_precnd_Ga3As3H12,/*_no_precnd*/ /*tridiagA_precnd_Ga3As3H12*//*sparse_precnd_Ga3As3H12*/
         _no_matvec/*bvec*/,
         eig, evec, n, n_eigenpairs, n_max_subspace, solving_generalized, max_iter, tol, shift, verbose);
 
     if(ok != LOBPCG_CONSTANTS::success) std::cerr<< "not ok! "<< std::endl;
     else std::cout << "ok! converged "<< std::endl;
+    std::cout << "Ga3As3H12: n_eigenpairs = " << n_eigenpairs << ", n_max_subspace = " << n_max_subspace << std::endl;
     std::cout << "------- final -------" << std::endl;
     std::cout << "LOBPCG eigenvalues = \n"<< eig.head(n_eigenpairs) << std::endl;
 }
@@ -306,9 +314,9 @@ int main(){
     // test_large_5000();
     // test_gen_9();
     // run_dense_Si2();
-    run_sparse_Si2();
+    // run_sparse_Si2();
     // run_sparse_Na5();
     // run_sparse_Si5H12();
-    // run_sparse_Ga3As3H12();
+    run_sparse_Ga3As3H12();
     return 0;
 }

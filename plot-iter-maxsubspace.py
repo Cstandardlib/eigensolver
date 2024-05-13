@@ -8,8 +8,13 @@ filename = 'Ga3As3H12cho_1.txt'
 # Si2, to seek 10 pairs with different n_max_subspace
 
 # 初始化变量
+# Si2 10-subspace
+# n_max_subspace_list =  list(range(15, 51, 5)) #[i for i in ]
+# iter_list = [38,30,27,24,22,20,19,18]
+# Na5
 n_max_subspace_list =  list(range(15, 51, 5)) #[i for i in ]
 iter_list = [38,30,27,24,22,20,19,18]
+
 
 # # 读取文件并解析每一行
 # with open(filename, 'r') as file:
@@ -30,8 +35,10 @@ print("Fourth number list:", iter_list)
 # 绘图
 plt.figure(figsize=(10, 5))
 plt.plot(n_max_subspace_list, iter_list, marker='o')
-plt.title('LOBPCG Iterations vs n_max_subspace')
-plt.xlabel('n_max_subspace')
+plt.title('LOBPCG Iterations vs n_space')
+plt.xlabel('n_space')
+# plt.title('LOBPCG Iterations vs n_max_subspace')
+# plt.xlabel('n_max_subspace')
 plt.ylabel('Iterations')
 plt.grid(True)
 
