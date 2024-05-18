@@ -23,4 +23,6 @@ void sparse_avec_Ga3As3H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::Mat
 void sparse_precnd_Ga3As3H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift);
 void tridiagA_precnd_Ga3As3H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen::MatrixXd& tvecs, double shift);
 
+// void init_all_sparseA();
+
 #endif // SPARSEMV_H

@@ -328,3 +328,13 @@ void tridiagA_precnd_Ga3As3H12(int n, int m, const Eigen::MatrixXd& vecs, Eigen:
     // 输出解矩阵
     // std::cout << "The solution matrix tvecs is:\n" << tvecs << std::endl;
 }
+
+
+
+// init all
+// void init_all_sparseA(){
+//     init_SparseA_Na5();
+//     init_SparseA_Si2();
+//     init_SparseA_Si5H12();
+//     init_SparseA_Ga3As3H12();
+// }

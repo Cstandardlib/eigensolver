@@ -273,6 +273,7 @@ void ortho_against_y(int n, int m, int k, Eigen::MatrixXd& x, const Eigen::Matri
             break;
         }
     }
+    std::cout << "end after " << ITER_MAX - iter_cnt << " iterations" << std::endl;
 #ifdef DEBUG_LOBPCG
     // std::cout << "----- end ortho against y -----" << std::endl;
 #endif

@@ -13,10 +13,10 @@ iter_list_no = [77,75,60,49,48,43,41]
 iter_list_diag = [77,64,53,49,43,42,39]
 iter_list_tri = [71,50,48,42,37,35,33]
 # Na5
-n_max_subspace_list =  list(range(100, 108)) #[i for i in ]
-iter_list_no = [149,130,104,92,85,81,76,71]
-iter_list_diag = [150,127,95,92,82,80,73,71]
-iter_list_tri = [130,96,87,83,71,66,63,58]
+# n_max_subspace_list =  list(range(100, 108)) #[i for i in ]
+# iter_list_no = [149,130,104,92,85,81,76,71]
+# iter_list_diag = [150,127,95,92,82,80,73,71]
+# iter_list_tri = [130,96,87,83,71,66,63,58]
 
 # 如果需要绘图或其他处理，可以继续使用这两个列表
 # 绘图
@@ -32,7 +32,7 @@ plt.plot(n_max_subspace_list, iter_list_tri, marker='o', label='Tridiagonal', co
 # 添加图例
 plt.legend()
 
-plt.title('LOBPCG Iterations vs n_space')
+plt.title('Si2 LOBPCG Iterations vs n_space')
 plt.xlabel('n_space')
 plt.ylabel('Iterations')
 plt.grid(True)

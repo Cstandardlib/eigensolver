@@ -20,7 +20,7 @@
 // deprecated, QR
 // #define USE_QR
 
-#define USE_THIN_QR
+// #define USE_THIN_QR
 
 // else use cholesky
 
