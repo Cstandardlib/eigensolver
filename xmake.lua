@@ -65,17 +65,17 @@ target("test")
     -- add_files("tests/simple-test.cpp")
 
     -- add_files("tests/eigen-test.cpp")
-    -- add_files("tests/ortho-test.cpp")
+    add_files("tests/ortho-test.cpp")
     -- add_files("tests/QRtest.cpp")
     -- add_files("tests/block-test.cpp")
     -- add_files("tests/time-test.cpp")
     -- add_files("tests/matvec-test.cpp")
-    add_files("tests/sparse-test.cpp")
+    -- add_files("tests/sparse-test.cpp")
 
     -- Add the source files
     -- add_files("lobpcg.cpp")
     -- add_files("matvec.cpp")
-    -- add_files("ortho.cpp")
+    add_files("ortho.cpp")
     -- add_files("utils.cpp")
 
     -- Add the include directories

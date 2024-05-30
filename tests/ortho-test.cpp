@@ -7,10 +7,24 @@
 void test_ortho(){
     std::cout << "\n----- Testing ortho -----" << std::endl;
     int n = 5; // number of rows
-    int m = 4; // number of columns
+    int m = 3;//4; // number of columns
     Eigen::MatrixXd evec(n, m); // initialize evec with zeros
-    evec << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20;
+    // evec << 1, 2, 3, 4, 
+    //         5, 6, 7, 8, 
+    //         9, 10, 11, 12, 
+    //         13, 14, 15, 16, 
+    //         17, 18, 19, 20;
+    evec << 1, 2, 3,
+            4, 5, 6, 
+            7, 8, 9, 
+            10, 11, 12, 
+            13, 14, 15;
+    evec.setRandom(); evec *= 10;
     auto another_vec = evec;
+
+    // std::cout << evec.col(2) << std::endl;
+    // evec.col(2).normalize();
+    // std::cout << evec.col(2) << std::endl;
 
     std::cout << "evec = \n" << evec << std::endl;
     ortho(n, m, evec);

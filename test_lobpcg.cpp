@@ -91,7 +91,7 @@ void test_large_1000(){
     int max_iter = 1000;
     double tol = 1e-6;
     double shift = 0.0;
-    bool verbose = true;
+    bool verbose = false; //true;
     Eigen::VectorXd eig(n_max_subspace);
     Eigen::MatrixXd evec(n, n_max_subspace);
     eig.setZero(); evec.setZero();
@@ -114,7 +114,7 @@ void test_large_5000(){
     int max_iter = 1000;
     double tol = 1e-6;
     double shift = 0.0;
-    bool verbose = true;
+    bool verbose = false;
     Eigen::VectorXd eig(n_max_subspace);
     Eigen::MatrixXd evec(n, n_max_subspace);
     eig.setZero(); evec.setZero();
@@ -315,11 +315,11 @@ int main(){
     // test_sparse_diag_A();
     // test_a1_9();
     // test_large_1000();
-    // test_large_5000();
+    test_large_5000();
     // test_gen_9();
     // run_dense_Si2();
     // run_sparse_Si2();
-    run_sparse_Na5();
+    // run_sparse_Na5();
     // run_sparse_Si5H12();
     // run_sparse_Ga3As3H12();
     return 0;

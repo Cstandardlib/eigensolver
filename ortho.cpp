@@ -63,6 +63,81 @@ void ortho(int n, int m, Eigen::MatrixXd &u)
     u = qr.householderQ() * u;  // now u=Q
 }
 
+#elif defined(USE_MGS)
+// modified Gram-Schmidt for thinQR
+// void ortho(int n, int m, Eigen::MatrixXd &A) {
+//     // int n = A.rows(); int m = A.cols();
+//     Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(n, m); // 初始化正交矩阵Q
+
+//     // 处理第一列
+//     Eigen::VectorXd A1 = A.col(0);
+//     Eigen::VectorXd q0 = A1.normalized();
+//     Q.col(0) = q0;
+
+//     for (int i = 1; i < m-1; ++i) {
+
+//         // 减去与前面向量的投影
+//         for (int j = i+1; j < m; ++j) {
+//             double proj = A.col(i).dot(Q.col(j));
+//             A.col(i) = A.col(i) - proj * Q.col(j);
+//         }
+
+//         // 检查是否正交化失败（向量是否为零向量）
+//         if (A.col(i).norm() < 1e-6) {
+//             // 如果是零向量，直接赋值
+//             Q.col(i) = A.col(i);
+//         } else {
+//             // 归一化
+//             Q.col(i) = A.col(i).normalized();
+//         }
+//     }
+
+//     A=Q;
+// }
+void ortho(int n, int m, Eigen::MatrixXd &x) {
+    assert(x.rows() == n);assert(x.cols() == m);
+
+    // 用于存储正交化后的向量集合
+    Eigen::MatrixXd Q=x;
+    Eigen::MatrixXd R(m, m);
+
+    for (int k = 0; k < m; ++k) {
+        double r_kk = x.col(k).norm();
+        if (r_kk < 1e-10) {
+            std::cerr << "Zero vector encountered in Modified Gram-Schmidt process." << std::endl;
+            std::cout << "Q'Q = " << Q.transpose()*Q << std::endl;
+            return;
+        }
+        R(k,k)=r_kk;
+        Q.col(k) = x.col(k) / r_kk;
+
+        // std::cout << "orthonormalized q("<<k<<") =\n" << Q.col(k) << std::endl;
+
+        for (int j = k+1; j < m; ++j) {
+            // 投影x的第j列到Q的第k列上，并减去这个投影
+#ifdef DEBUG_ORTHO
+            std::cout << "project col(" << k << ") to col(" << j << ")=\n"<< Q.col(j) << std::endl;
+#endif
+            // std::cout << "<qj, qi> qi =\n"<<(q.dot(Q.col(j))) * Q.col(j)<< std::endl;
+            double r_kj = Q.col(k).dot(x.col(j));
+            // std::cout << "qk dot qj ="<< r_kj << std::endl;
+            R(k,j)=r_kj;
+            x.col(j) = x.col(j) -Q.col(k) *  r_kj;
+            // std::cout << "now q(" << k << ")=\n" << q << std::endl;
+        }
+    }
+
+    x = Q;
+#ifdef DEBUG_ORTHO
+    std::cout << "Q =\n" << Q << std::endl;
+    std::cout << "R =\n" << R << std::endl;
+    std::cout << "Q*R =\n" << Q * R << std::endl;
+    std::cout << "Q'Q = " << Q.transpose()*Q << std::endl;
+#endif
+}
+
+
+
 
 #else // USE_QR and USE_THIN_QR not defined, use cholesky
 
@@ -273,7 +348,9 @@ void ortho_against_y(int n, int m, int k, Eigen::MatrixXd& x, const Eigen::Matri
             break;
         }
     }
+#ifdef DEBUG_ORTHO
     std::cout << "end after " << ITER_MAX - iter_cnt << " iterations" << std::endl;
+#endif
 #ifdef DEBUG_LOBPCG
     // std::cout << "----- end ortho against y -----" << std::endl;
 #endif
