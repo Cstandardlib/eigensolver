@@ -381,10 +381,38 @@ x, ax is new[k+1]
 #ifdef DEBUG_LOBPCG
     // std::cout << "--- starts checking convergence and locking ---" << std::endl;
 #endif
+
     /* 2.5 check convergence and locking */
+    // new LOCKING strategy by trace minimization
+#ifdef LOCKING_BY_TRACE
+// or by defining constant? LOCKING_BY_TRACE = true
     // i range from 0 to n_max_subspace-1,   total n_max_subspace vectors
     for(int i = 0; i < n_max_subspace; ++i){
-        // alreadhy locked
+        // already locked
+        if(activeMask(i) != ACTIVE) continue;
+        // simply lock by norm of residuals
+        if(r_norm_2(i) < tol*std::sqrt(static_cast<double>(n)) && iter >0){
+            activeMask(i) = INACTIVE; // lock the vector
+        }
+    }
+    // checking overall convergence for n_eigenpairs needed
+    tp_1 = get_current_time();
+    Eigen::MatrixXd xax = x.transpose() * ax;
+    Eigen::MatrixXd subspace_residual = ax - x * xax;
+    tp_2 = get_current_time();
+    t_avec += tp_2 - tp_1;
+    double subspace_residual_norm = subspace_residual.norm() / xax.norm();
+    if(subspace_residual_norm < LOBPCG_CONSTANTS::tol_subspace_res){
+        // all vectors are locked, i.e. converged
+        std::cout << "> subspace residual norm of required " << n_eigenpairs << " eigenpairs converged! <" << std::endl;
+        std::cout << "> converged after " << iter << " iters. <" << std::endl;
+        evec = x; // x(n, n_max_subspace)
+        break; // exit main loop
+    }
+#else // LOCKING_BY_TRACE
+    // i range from 0 to n_max_subspace-1,   total n_max_subspace vectors
+    for(int i = 0; i < n_max_subspace; ++i){
+        // already locked
         if(activeMask(i) != ACTIVE) continue;
 
         if(r_norm_2(i) < tol*std::sqrt(static_cast<double>(n))
@@ -392,14 +420,14 @@ x, ax is new[k+1]
             && iter >0
         ){
             activeMask(i) = INACTIVE; // lock the vector
-#ifdef DEBUG_LOBPCG
+#ifdef DEBUG_LOCKING
             // std::cout << "eigvec " << (i) << " is locked" << std::endl;
 #endif
         }
         if(activeMask(i) == ACTIVE){
             // if not locked, update the active size
             // every vec after this one should be active
-#ifdef DEBUG_LOBPCG
+#ifdef DEBUG_LOCKING
             // std::cout << "activeMask.segment("<< i+1<<", "<< n_max_subspace-1-i<<") =\n" << activeMask.segment(i+1, n_max_subspace-1-i)
             //     <<"\nis now Eigen::VectorXi::Constant("<<n_max_subspace-1-i<<", "<< ACTIVE <<") = \n"
             //     << Eigen::VectorXi::Constant(n_max_subspace-1-i, ACTIVE) << std::endl;
@@ -407,7 +435,7 @@ x, ax is new[k+1]
             activeMask.segment(i+1, n_max_subspace-1-i) = Eigen::VectorXi::Constant(n_max_subspace-1-i, ACTIVE);
             
             // for(int j=i+1; j<n_max_subspace; ++j) activeMask(j) = ACTIVE;
-#ifdef DEBUG_LOBPCG
+#ifdef DEBUG_LOCKING
             if(i==n_eigenpairs-2){
                 std::cout << "set active from " << i+1 << " to end" << std::endl;
                 std::cout << "eigvecs from " << (i+1) << " to " << n_max_subspace-1 << " are re-activated" << std::endl;
@@ -418,11 +446,14 @@ x, ax is new[k+1]
             // need to break;
             // or will be set INACTIVE by later iters in segment(i+1, n_max_subspace-1-i)
             break;
-#ifdef DEBUG_LOBPCG
+#ifdef DEBUG_LOCKING
             // std::cout << "eigvecs from " << (i+1) << " to " << n_max_subspace-1 << " are re-activated" << std::endl;
 #endif            
         }
     }
+
+#ifdef DEBUG_LOCKING
+// print converge state
     if(verbose){
         for(int i=0; i<n_eigenpairs; ++i){
             // std::cout << "iter#  root         eigenvalues         residuals         converged" << std::endl;
@@ -435,17 +466,18 @@ x, ax is new[k+1]
         }
         std::cout << std::endl;
     }
-#ifdef DEBUG_LOBPCG
     // std::cout << "--- checking overall convergence ---" << std::endl;
 #endif
     // checking overall convergence for n_eigenpairs needed
     if((activeMask.head(n_eigenpairs).array() == INACTIVE).all()){
         // all vectors are locked, i.e. converged
         std::cout << "> all of required " << n_eigenpairs << " eigenpairs converged! <" << std::endl;
-        std::cout << "converged after " << iter << " iters." << std::endl;
+        std::cout << "> converged after " << iter << " iters. <" << std::endl;
         evec = x; // x(n, n_max_subspace)
         break; // exit main loop
     }
+
+#endif //LOCKING_BY_TRACE
 
     /* 2.6 check active eigenvalues and update blockvectors X, P, W */
     /* 2.6.1 compute the number of active eigenvalues */

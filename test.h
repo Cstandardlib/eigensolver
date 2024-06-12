@@ -7,6 +7,7 @@
 
 // #define TEST_LOBPCG
 // #define DEBUG_LOBPCG
+// #define DEBUG_LOCKING
 // #define DEBUG_EIGENSOLVER
 // #define DEBUG_ORTHO
 // #define DEBUG_COEFF

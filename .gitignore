@@ -4,6 +4,8 @@ dist/
 bin/
 out/
 data/
+cmp-ortho/
+subres/
 
 
 # Ignore compiled files

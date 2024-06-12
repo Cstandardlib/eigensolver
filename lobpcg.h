@@ -13,6 +13,8 @@
 
 #include "test.h"
 
+// #define LOCKING_BY_TRACE // locking by subspace residual norm, else by individual eigenpairs
+
 namespace LOBPCG_CONSTANTS {
     // 使用static constexpr以确保类型安全和编译时评估
     static constexpr double tol_zero = 1.0e-10;
@@ -20,6 +22,7 @@ namespace LOBPCG_CONSTANTS {
     static constexpr int fail = 1;          // fail flag for lobpcg_solve
     static constexpr int eig_success = 0;   // success flag for eigensolver
     static constexpr int eig_fail = 1;      // fail flag for eigensolver
+    static constexpr double tol_subspace_res = 1.0e-2;
 }
 
 // Declare function prototypes

@@ -19,7 +19,10 @@ void test_ortho(){
             7, 8, 9, 
             10, 11, 12, 
             13, 14, 15;
-    evec.setRandom(); evec *= 10;
+    for(int j=0; j<m; ++j){
+        evec.col(j).normalize();
+    }
+    // evec.setRandom(); evec *= 10;
     auto another_vec = evec;
 
     // std::cout << evec.col(2) << std::endl;

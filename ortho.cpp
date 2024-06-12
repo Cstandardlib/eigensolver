@@ -109,7 +109,9 @@ void ortho(int n, int m, Eigen::MatrixXd &x) {
             return;
         }
         R(k,k)=r_kk;
-        Q.col(k) = x.col(k) / r_kk;
+        // x.col(k) =  x.col(k) / r_kk;
+        // Q.col(k) = x.col(k);
+        Q.col(k) =  x.col(k) / r_kk;
 
         // std::cout << "orthonormalized q("<<k<<") =\n" << Q.col(k) << std::endl;
 
